@@ -1,0 +1,62 @@
+# Dépendances Node.js
+node_modules/
+
+# Dossier de build Next.js
+.next/
+out/
+
+# VS Code
+.vscode/
+
+# Variables d'environnement
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# BFG ou autres binaires
+bfg-*.jar
+
+# IDE
+.idea/
+*.swp
+
+# Prisma
+/generated/
+prisma/dev.db
+prisma/dev.db-journal
+
+# Tailwind CLI binaire
+tools/tailwindcss.exe
+
+# SASS / CSS caches
+.sass-cache/
+.cache/
+
+# Test / Coverage
+coverage/
+*.lcov
+
+# Build exports
+dist/
+build/
+
+# Optional: fichiers temporaires
+*.tmp
+*.bak
+*.orig
+*.old

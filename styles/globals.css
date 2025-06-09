@@ -1,0 +1,195 @@
+/* Tailwind base */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset */
+body, h1, h2, h3, p {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  color: #000000;
+}
+
+body {
+  background-color: #F8F8F8;
+  line-height: 1.6;
+}
+
+/* Conteneur général */
+.container {
+  position: relative;
+  overflow: visible;
+  height: auto;
+  min-height: 80vh;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+h1 {
+  color: #000000;
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+.accent {
+  color: #F4D35E;
+}
+
+/* Boutons */
+.button {
+  background-color: #F4D35E;
+  color: #000000;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+  position: relative;
+  z-index: 10;
+}
+
+.button:hover {
+  background-color: #FF6B35;
+  color: #FFFFFF;
+}
+
+/* Quill editor */
+.ql-container {
+  min-height: 300px;
+  height: auto !important;
+  max-height: none;
+}
+
+.ql-toolbar {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.ql-editor {
+  min-height: 300px;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Bannières */
+.banner-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.banner-image {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+.banner-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #F4D35E;
+  color: #000000;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.banner-button:hover {
+  background-color: #FF6B35;
+  color: #FFFFFF;
+}
+
+/* Tuiles */
+.tile, .tuile {
+  background-color: #FFFBEA;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #e9e0c9;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.tile-title {
+  margin: 0;
+  color: #000;
+}
+
+/* Emploi du temps */
+.emploi-du-temps {
+  background-color: #F8F8F8;
+  padding: 2rem;
+}
+
+.emploi-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+  text-align: center;
+  table-layout: fixed;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.emploi-table th,
+.emploi-table td {
+  border: 1px solid #D0D0D0;
+  padding: 0.5rem;
+}
+
+.emploi-table th.heure,
+.emploi-table td.heure {
+  background-color: #F0F0F0;
+  font-weight: bold;
+}
+.emploi-table col.heure {
+  width: 70px;
+}
+
+/* Coins arrondis */
+.emploi-table th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.emploi-table th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.emploi-table tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.emploi-table tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+/* Barre latérale */
+.bibliotheque-tuiles {
+  max-width: 20%;
+  min-width: 200px;
+  background: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  overflow-y: auto;
+}
+
+/* Titres */
+.sous-titre {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+}
