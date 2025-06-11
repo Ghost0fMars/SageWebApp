@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Header from '@/components/Header';
 
 export default function Formulaire() {
   const [competences, setCompetences] = useState([]);
@@ -112,6 +113,8 @@ export default function Formulaire() {
   };
 
   return (
+    <>
+    <Header/>
     <div className="container">
       <h1>
         Créer une <span className="accent">séquence</span>
@@ -231,5 +234,6 @@ export default function Formulaire() {
         </button>
       </form>
     </div>
+    </>
   );
 }

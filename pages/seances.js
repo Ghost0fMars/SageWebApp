@@ -3,6 +3,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
+import Header from '@/components/Header';
 import Link from 'next/link';
 
 // ReactQuill dynamique (éviter les erreurs SSR)
@@ -84,6 +85,8 @@ export default function Seances() {
   };
 
   return (
+    <>
+    <Header />
     <div className="container">
       <h1>Séances <span className="accent">détaillées</span></h1>
 
@@ -114,15 +117,11 @@ export default function Seances() {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
             <button className="button" onClick={handleExportWord}>
               Exporter en Word
-            </button>
-
-            {/* Le bouton pour ouvrir l’emploi du temps */}
-            <Link href="/emploi-du-temps" legacyBehavior>
-              <button className="button">Ouvrir l’emploi du temps</button>
-            </Link>
+            </button>       
           </div>
         </div>
       )}
     </div>
+    </>
   );
 }

@@ -55,3 +55,13 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model Seance {
+  id        String   @id @default(cuid())
+  titre     String
+  domaine   String
+  couleur   String
+  userId    String
+  position  String   @default("sidebar") // 👈 soit 'sidebar', soit 'Lundi-8h30' etc.
+  createdAt DateTime @default(now())
+}
