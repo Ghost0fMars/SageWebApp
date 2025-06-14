@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { signIn } from 'next-auth/react';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
-  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,21 +15,12 @@ export default function LoginForm() {
     e.preventDefault();
     setMessage('');
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+    // ✅ NextAuth gère la redirection automatiquement grâce à callbackUrl
+    await signIn('credentials', {
+      email: formData.email,
+      password: formData.password,
+      callbackUrl: '/HomePage', // Redirection après succès
     });
-
-    const data = await res.json();
-    if (res.ok) {
-      setMessage(`Bienvenue, ${data.user.name || data.user.email} !`);
-      setTimeout(() => {
-        router.push('/HomePage');
-      }, 1000);
-    } else {
-      setMessage(data.error || 'Une erreur est survenue.');
-    }
   };
 
   return (
@@ -93,8 +83,8 @@ export default function LoginForm() {
         </form>
         {message && <p style={{ marginTop: '1rem', textAlign: 'center' }}>{message}</p>}
         <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-        Vous n'avez pas encore de compte ?<br />
-        <Link href="/signup">Créer un compte</Link>
+          Vous n'avez pas encore de compte ?<br />
+          <Link href="/signup">Créer un compte</Link>
         </p>
       </div>
     </div>

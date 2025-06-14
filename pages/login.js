@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { signIn } from 'next-auth/react';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -16,20 +17,20 @@ export default function LoginForm() {
     e.preventDefault();
     setMessage('');
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+    // ✅ Utilise NextAuth CredentialsProvider côté client :
+    const res = await signIn('credentials', {
+      redirect: false,
+      email: formData.email,
+      password: formData.password,
     });
 
-    const data = await res.json();
     if (res.ok) {
-      setMessage(`Bienvenue, ${data.user.name || data.user.email} !`);
+      setMessage(`Bienvenue, ${formData.email} !`);
       setTimeout(() => {
-        router.push('/HomePage');
+        router.push('/');
       }, 1000);
     } else {
-      setMessage(data.error || 'Une erreur est survenue.');
+      setMessage('Email ou mot de passe incorrect.');
     }
   };
 
@@ -93,8 +94,8 @@ export default function LoginForm() {
         </form>
         {message && <p style={{ marginTop: '1rem', textAlign: 'center' }}>{message}</p>}
         <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-        Vous n'avez pas encore de compte ?<br />
-        <Link href="/signup">Créer un compte</Link>
+          Vous n'avez pas encore de compte ?<br />
+          <Link href="/signup">Créer un compte</Link>
         </p>
       </div>
     </div>

@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { signIn } from 'next-auth/react';
 
 export default function SignUp() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [message, setMessage] = useState('');
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -15,6 +18,7 @@ export default function SignUp() {
     setMessage('');
 
     try {
+      // ✅ 1️⃣ Appel API pour créer l'utilisateur
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,11 +26,25 @@ export default function SignUp() {
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setMessage('Compte créé avec succès. Vous pouvez maintenant vous connecter.');
-        setFormData({ name: '', email: '', password: '' });
-      } else {
+      if (!res.ok) {
         setMessage(data.error || 'Une erreur est survenue.');
+        return;
+      }
+
+      // ✅ 2️⃣ Connexion automatique après inscription
+      const signInRes = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInRes.ok) {
+        setMessage(`Bienvenue, ${formData.name || formData.email} !`);
+        setTimeout(() => {
+          router.push('/');
+        }, 1000);
+      } else {
+        setMessage("Compte créé, mais échec de connexion automatique.");
       }
     } catch (err) {
       setMessage("Erreur de connexion au serveur.");

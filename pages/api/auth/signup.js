@@ -1,5 +1,5 @@
 import { hash } from 'bcryptjs';
-import prisma from '@/lib/prisma'; // On crée ce fichier dans l'étape suivante
+import prisma from '@/lib/prisma'; // Ton instance Prisma
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       data: {
         name,
         email,
-        password: hashedPassword,
+        hashedPassword, // ✅ Ici on met bien "hashedPassword" pour correspondre au modèle
       },
     });
 

@@ -18,9 +18,10 @@ export const authOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.password) return null;
+        // ✅ On vérifie bien le bon champ :
+        if (!user || !user.hashedPassword) return null;
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+        const isValid = await bcrypt.compare(credentials.password, user.hashedPassword);
         if (!isValid) return null;
 
         return user;
