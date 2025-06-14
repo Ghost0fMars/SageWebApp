@@ -34,11 +34,7 @@ export default function Header() {
           </Link>
 
           <button
-            onClick={() =>
-              signOut({ redirect: false }).then(() => {
-                window.location.href = "/auth/login";
-              })
-            }
+            onClick={() => signOut({ callbackUrl: "/login" })}
             className="button flex items-center gap-2"
             title="Se déconnecter"
           >

@@ -72,38 +72,38 @@ export default function Sequence() {
 
   // Fonction d'extraction des tuiles avec nom, objectif et consigne
   const extractTuilesFromSequence = (sequenceHtml) => {
-  const parser = new DOMParser();
-  const docHTML = parser.parseFromString(sequenceHtml, 'text/html');
-  const text = docHTML.body.textContent;
+    const parser = new DOMParser();
+    const docHTML = parser.parseFromString(sequenceHtml, 'text/html');
+    const text = docHTML.body.textContent;
 
-  // Découpe par "Séance X -" ou "Séance X –" ou "Séance X:"
-  const blocks = text.split(/Séance\s*\d+\s*[-–:]\s*/i).filter(Boolean);
+    // Découpe par "Séance X -" ou "Séance X –" ou "Séance X:"
+    const blocks = text.split(/Séance\s*\d+\s*[-–:]\s*/i).filter(Boolean);
 
-  const tuiles = blocks.map(block => {
-    // Cherche le titre
-    const titreMatch = block.match(/Titre\s*:\s*(.*)/i);
-    // Cherche la consigne
-    const consigneMatch = block.match(/Consigne pour les élèves\s*:\s*(.*)/i);
-    // Cherche l'objectif (si présent)
-    const objectifMatch = block.match(/Objectif\s*:\s*(.*)/i);
+    const tuiles = blocks.map(block => {
+      // Cherche le titre
+      const titreMatch = block.match(/Titre\s*:\s*(.*)/i);
+      // Cherche la consigne
+      const consigneMatch = block.match(/Consigne pour les élèves\s*:\s*(.*)/i);
+      // Cherche l'objectif (si présent)
+      const objectifMatch = block.match(/Objectif\s*:\s*(.*)/i);
 
-    return {
-      nom: titreMatch ? titreMatch[1].trim() : "Sans titre",
-      objectif: objectifMatch ? objectifMatch[1].trim() : "",
-      consigne: consigneMatch ? consigneMatch[1].trim() : "",
-    };
-  });
+      return {
+        nom: titreMatch ? titreMatch[1].trim() : "Sans titre",
+        objectif: objectifMatch ? objectifMatch[1].trim() : "",
+        consigne: consigneMatch ? consigneMatch[1].trim() : "",
+      };
+    });
 
-  return tuiles;
-};
+    return tuiles;
+  };
 
   const handleExporterTuiles = async () => {
     const tuiles = extractTuilesFromSequence(sequence);
     console.log("Tuiles extraites :", tuiles);
-    
+
     await Promise.all(
       tuiles.map(tuile =>
-        fetch('/api/seance', {
+        fetch('/api/seances-tiles', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -161,7 +161,14 @@ export default function Sequence() {
               </button>
 
               <Link
-                href={{ pathname: '/seances', query: { sequence } }}
+                href={{
+                  pathname: '/seances',
+                  query: {
+                    sequence: sequence,
+                    titre: titre,
+                    competence: competence
+                  }
+                }}
                 legacyBehavior
               >
                 <button className="button" style={{ display: 'inline-block' }}>

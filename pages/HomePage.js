@@ -9,7 +9,7 @@ export default function HomePage() {
 
   // Nouvelle fonction pour forcer le rafraîchissement des séances
   const refreshSeances = async () => {
-    const res = await fetch('/api/seance');
+    const res = await fetch('/api/seances-tiles');
     const data = await res.json();
 
     // Regroupe les séances par position

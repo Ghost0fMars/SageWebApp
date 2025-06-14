@@ -1,25 +1,24 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 
 export default function LoginForm() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const emailRef = useRef();
+  const passwordRef = useRef();
   const [message, setMessage] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
 
-    // ✅ NextAuth gère la redirection automatiquement grâce à callbackUrl
+    // ✅ On lit directement la valeur actuelle dans le DOM
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
+
     await signIn('credentials', {
-      email: formData.email,
-      password: formData.password,
-      callbackUrl: '/HomePage', // Redirection après succès
+      email,
+      password,
+      callbackUrl: '/HomePage',
     });
   };
 
@@ -51,20 +50,18 @@ export default function LoginForm() {
         <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Se connecter</h2>
         <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <input
+            ref={emailRef}
             type="email"
             name="email"
             placeholder="Adresse email"
-            value={formData.email}
-            onChange={handleChange}
             required
             style={{ marginBottom: '1rem', width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc' }}
           />
           <input
+            ref={passwordRef}
             type="password"
             name="password"
             placeholder="Mot de passe"
-            value={formData.password}
-            onChange={handleChange}
             required
             style={{ marginBottom: '1.5rem', width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc' }}
           />

@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import Header from '@/components/Header';
-import Link from 'next/link';
 
 // ReactQuill dynamique (éviter les erreurs SSR)
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -12,7 +11,7 @@ import 'react-quill/dist/quill.snow.css';
 
 export default function Seances() {
   const router = useRouter();
-  const { sequence } = router.query;
+  const { sequence, titre, competence } = router.query; // ✅ récupère titre + competence aussi
 
   const [detailedSessions, setDetailedSessions] = useState('');
   const [loading, setLoading] = useState(false);
@@ -84,44 +83,73 @@ export default function Seances() {
     saveAs(blob, 'seances_detaillees.docx');
   };
 
+  // ✅ Nouveau : sauvegarder la séquence + séances détaillées
+  const handleSaveSequence = async () => {
+    if (!titre || !competence) {
+      alert("Titre ou compétence manquant !");
+      return;
+    }
+
+    const res = await fetch("/api/sequences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: titre,
+        content: {
+          competence: competence,
+          seancesDetaillees: detailedSessions,
+        },
+      }),
+    });
+
+    if (res.ok) {
+      alert("Séquence sauvegardée avec succès !");
+    } else {
+      alert("Erreur lors de la sauvegarde.");
+    }
+  };
+
   return (
     <>
-    <Header />
-    <div className="container">
-      <h1>Séances <span className="accent">détaillées</span></h1>
+      <Header />
+      <div className="container">
+        <h1>Séances <span className="accent">détaillées</span></h1>
 
-      <button className="button" onClick={handleGenerateDetailed}>
-        Générer séances
-      </button>
+        <button className="button" onClick={handleGenerateDetailed}>
+          Générer séances
+        </button>
 
-      {loading && (
-        <div style={{ marginTop: '1rem' }}>
-          <p>⏳ L'IA génère les séances détaillées, merci de patienter…</p>
-        </div>
-      )}
-
-      {detailedSessions && (
-        <div style={{ marginTop: '1rem' }}>
-          <h2>Modifier les séances :</h2>
-          <ReactQuill
-            theme="snow"
-            value={detailedSessions}
-            onChange={setDetailedSessions}
-            style={{
-              height: '400px',
-              overflowY: 'auto',
-              marginBottom: '1rem'
-            }}
-          />
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
-            <button className="button" onClick={handleExportWord}>
-              Exporter en Word
-            </button>       
+        {loading && (
+          <div style={{ marginTop: '1rem' }}>
+            <p>⏳ L'IA génère les séances détaillées, merci de patienter…</p>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {detailedSessions && (
+          <div style={{ marginTop: '1rem' }}>
+            <h2>Modifier les séances :</h2>
+            <ReactQuill
+              theme="snow"
+              value={detailedSessions}
+              onChange={setDetailedSessions}
+              style={{
+                height: '400px',
+                overflowY: 'auto',
+                marginBottom: '1rem'
+              }}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+              <button className="button" onClick={handleExportWord}>
+                Exporter en Word
+              </button>
+              <button className="button" onClick={handleSaveSequence}>
+                Sauvegarder la séquence et séances
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 }

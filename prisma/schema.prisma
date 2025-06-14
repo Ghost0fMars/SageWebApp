@@ -1,67 +1,44 @@
-generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native"] // ou "windows-arm64"
-  engineType    = "binary"
-}
+// Exemple complet avec User, Seance et Sequence
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
-  id             String    @id @default(cuid())
-  name           String?
-  email          String    @unique
-  emailVerified  DateTime?
-  hashedPassword String?   
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  role           String    @default("user")
-  accounts       Account[]
-  sessions       Session[]
-}
-
-model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
-  user               User    @relation(fields: [userId], references: [id])
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id            String   @id @default(cuid())
-  sessionToken  String   @unique
-  userId        String
-  expires       DateTime
-  user          User     @relation(fields: [userId], references: [id])
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  hashedPassword String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      String?  // si tu avais un rôle (admin, user, etc.)
+  seances   Seance[]
+  sequences Sequence[]
 }
 
 model Seance {
   id        String   @id @default(cuid())
   titre     String
-  domaine   String
-  couleur   String
+  objectif  String?
+  consigne  String?
+  domaine   String?
+  couleur   String?
+  position  String?
   userId    String
-  position  String   @default("sidebar") // ex: 'sidebar' ou 'Lundi-8h30'
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Sequence {
+  id        String   @id @default(cuid())
+  title     String
+  content   Json
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 }

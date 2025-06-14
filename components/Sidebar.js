@@ -12,7 +12,7 @@ export default function Sidebar({ seances, refreshSeances }) {
 
     await Promise.all(
       sidebarTuiles.map(seance =>
-        fetch(`/api/seance/${seance.id}`, {
+        fetch(`/api/seances-tiles/${seance.id}`, {
           method: 'DELETE'
         })
       )

@@ -1,37 +1,25 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { signIn } from 'next-auth/react';
 
 export default function LoginForm() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const emailRef = useRef();
+  const passwordRef = useRef();
   const [message, setMessage] = useState('');
-  const router = useRouter();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
 
-    // ✅ Utilise NextAuth CredentialsProvider côté client :
-    const res = await signIn('credentials', {
-      redirect: false,
-      email: formData.email,
-      password: formData.password,
-    });
+    // ✅ On lit directement la valeur actuelle dans le DOM
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
 
-    if (res.ok) {
-      setMessage(`Bienvenue, ${formData.email} !`);
-      setTimeout(() => {
-        router.push('/');
-      }, 1000);
-    } else {
-      setMessage('Email ou mot de passe incorrect.');
-    }
+    await signIn('credentials', {
+      email,
+      password,
+      callbackUrl: '/HomePage',
+    });
   };
 
   return (
@@ -62,20 +50,18 @@ export default function LoginForm() {
         <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Se connecter</h2>
         <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <input
+            ref={emailRef}
             type="email"
             name="email"
             placeholder="Adresse email"
-            value={formData.email}
-            onChange={handleChange}
             required
             style={{ marginBottom: '1rem', width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc' }}
           />
           <input
+            ref={passwordRef}
             type="password"
             name="password"
             placeholder="Mot de passe"
-            value={formData.password}
-            onChange={handleChange}
             required
             style={{ marginBottom: '1.5rem', width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc' }}
           />
