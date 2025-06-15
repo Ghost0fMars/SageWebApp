@@ -61,10 +61,10 @@ export default function MesSequences() {
             return (
               <Link key={seq.id} href={`/sequence/${seq.id}`} className="no-underline">
                 <SequenceTile
-                 title={seq.title}
-                domaine={seq.content?.domaine}
-                 sousDomaine={seq.content?.sousDomaine}
-                objectif={seq.content?.competence}
+                  title={seq.title}
+                  domaine={seq.content?.domaine}
+                  sousDomaine={seq.content?.sousDomaine}
+                  objectif={seq.content?.competence}
               />
              </Link>
          );

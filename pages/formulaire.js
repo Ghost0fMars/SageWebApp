@@ -107,7 +107,9 @@ export default function Formulaire() {
       pathname: '/sequence',
       query: {
         competence: selectedCompetence,
-        titre: titre
+        titre: titre,
+        domaine: selectedDomaine,
+        sousDomaine: selectedSousDomaine
       }
     });
   };

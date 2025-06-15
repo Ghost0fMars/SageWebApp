@@ -166,7 +166,9 @@ export default function Sequence() {
                   query: {
                     sequence: sequence,
                     titre: titre,
-                    competence: competence
+                    competence: competence,
+                    domaine: router.query.domaine,
+                    sousDomaine: router.query.sousDomaine
                   }
                 }}
                 legacyBehavior

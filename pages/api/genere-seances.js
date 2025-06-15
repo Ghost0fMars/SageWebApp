@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { sequence } = req.body;
+  const { sequence, domaine, sousDomaine } = req.body;
 
   if (!sequence || sequence.trim() === '') {
     res.status(400).json({ message: 'La progression de la séquence est manquante.' });
@@ -14,6 +14,8 @@ export default async function handler(req, res) {
 
   // Crée le prompt pour l'IA
   const prompt = `
+  Domaine : ${domaine}
+  Sous-domaine : ${sousDomaine}
 À partir de la progression suivante :
 
 "${sequence}"
@@ -24,7 +26,7 @@ Pour chaque séance identifiée, génère un contenu détaillé avec les phases 
 3️⃣ Phase de mise en commun : objectif, activités proposées, matériel.
 4️⃣ Phase de synthèse et institutionnalisation : objectif, activités proposées, matériel, trace écrite.
 
-Présente la réponse sous forme structurée et lisible.
+Présente la réponse sous forme structurée et lisible en précisant le Domaine et le sous-domaine de la séquence au début.
 `;
 
   try {

@@ -11,7 +11,7 @@ import 'react-quill/dist/quill.snow.css';
 
 export default function Seances() {
   const router = useRouter();
-  const { sequence, titre, competence } = router.query; // ✅ récupère titre + competence aussi
+  const { sequence, titre, competence, domaine, sousDomaine } = router.query; // ✅ récupère tout proprement
 
   const [detailedSessions, setDetailedSessions] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,7 @@ export default function Seances() {
     const res = await fetch('/api/genere-seances', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sequence }),
+      body: JSON.stringify({ sequence, domaine, sousDomaine }), // ✅ passe le bon nom
     });
     const data = await res.json();
     const cleaned = cleanDetailedSessions(data.resultat);
@@ -83,12 +83,20 @@ export default function Seances() {
     saveAs(blob, 'seances_detaillees.docx');
   };
 
-  // ✅ Nouveau : sauvegarder la séquence + séances détaillées
   const handleSaveSequence = async () => {
     if (!titre || !competence) {
       alert("Titre ou compétence manquant !");
       return;
     }
+
+    // ✅ Ajout du log pour vérif
+    console.log("🔍 Sauvegarde séquence avec :", {
+      title: titre,
+      domaine: domaine,
+      sousDomaine: sousDomaine,
+      competence: competence,
+      seancesDetaillees: detailedSessions,
+    });
 
     const res = await fetch("/api/sequences", {
       method: "POST",
@@ -96,6 +104,8 @@ export default function Seances() {
       body: JSON.stringify({
         title: titre,
         content: {
+          domaine: domaine,
+          sousDomaine: sousDomaine,
           competence: competence,
           seancesDetaillees: detailedSessions,
         },
