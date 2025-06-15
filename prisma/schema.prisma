@@ -10,16 +10,17 @@ generator client {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  hashedPassword String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role      String?  // si tu avais un rôle (admin, user, etc.)
-  seances   Seance[]
-  sequences Sequence[]
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+  hashedPassword  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  seances         Seance[]
+  sequences       Sequence[]
 }
+
+
 
 model Seance {
   id        String   @id @default(cuid())

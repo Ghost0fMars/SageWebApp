@@ -1,4 +1,6 @@
 import Header from "@/components/Header";
+import SequenceTile from "@/components/SequenceTile";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -24,7 +26,7 @@ export default function MesSequences() {
       <>
         <Header />
         <div className="container">
-          <h1>Mes séquences</h1>
+          <h1 className="text-2xl font-bold mb-4">Mes séquences</h1>
           <p>Chargement en cours...</p>
         </div>
       </>
@@ -36,7 +38,7 @@ export default function MesSequences() {
       <>
         <Header />
         <div className="container">
-          <h1>Mes séquences</h1>
+          <h1 className="text-2xl font-bold mb-4">Mes séquences</h1>
           <p>Connecte-toi pour voir tes séquences.</p>
         </div>
       </>
@@ -47,22 +49,28 @@ export default function MesSequences() {
     <>
       <Header />
       <div className="container">
-        <h1>Mes séquences</h1>
+        <h1 className="text-2xl font-bold mb-6">Mes séquences</h1>
+
         {sequences.length === 0 ? (
           <p>Aucune séquence enregistrée.</p>
         ) : (
-          <ul>
-            {sequences.map((seq) => (
-              <li key={seq.id} style={{ marginBottom: "2rem" }}>
-                <h3>{seq.title}</h3>
-                <p><strong>Compétence :</strong> {seq.content.competence}</p>
-                <div
-                  style={{ background: "#f9f9f9", padding: "1rem", borderRadius: "8px" }}
-                  dangerouslySetInnerHTML={{ __html: seq.content.seancesDetaillees }}
-                />
-              </li>
-            ))}
-          </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sequences.map((seq) => {
+             console.log("Séquence =>", seq); // ✅ AJOUTE CE LOG ICI
+
+            return (
+              <Link key={seq.id} href={`/sequence/${seq.id}`} className="no-underline">
+                <SequenceTile
+                 title={seq.title}
+                domaine={seq.content?.domaine}
+                 sousDomaine={seq.content?.sousDomaine}
+                objectif={seq.content?.competence}
+              />
+             </Link>
+         );
+      })}
+
+          </div>
         )}
       </div>
     </>
