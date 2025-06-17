@@ -9,6 +9,25 @@ export default function MesSequences() {
   const [sequences, setSequences] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const handleDelete = async (id) => {
+  if (!confirm("Confirmer la suppression ?")) return;
+
+  try {
+    const res = await fetch(`/api/sequences/${id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      setSequences(sequences.filter((seq) => seq.id !== id));
+    } else {
+      alert("Erreur lors de la suppression");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Erreur réseau");
+  }
+  };
+
+
   useEffect(() => {
     if (status === "authenticated") {
       const fetchSequences = async () => {
@@ -55,20 +74,31 @@ export default function MesSequences() {
           <p>Aucune séquence enregistrée.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sequences.map((seq) => {
-             console.log("Séquence =>", seq); // ✅ AJOUTE CE LOG ICI
 
-            return (
-              <Link key={seq.id} href={`/sequence/${seq.id}`} className="no-underline">
-                <SequenceTile
-                  title={seq.title}
-                  domaine={seq.content?.domaine}
-                  sousDomaine={seq.content?.sousDomaine}
-                  objectif={seq.content?.competence}
-              />
-             </Link>
-         );
-      })}
+            {sequences.map((seq) => (
+  <div key={seq.id} className="flex items-start justify-between p-2 rounded-md">
+    <Link href={`/sequence/${seq.id}`} className="no-underline flex-1 block">
+      <SequenceTile
+        title={seq.title}
+        domaine={seq.content?.domaine}
+        sousDomaine={seq.content?.sousDomaine}
+        objectif={seq.content?.competence}
+      />
+    </Link>
+
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        handleDelete(seq.id);
+      }}
+      className="ml-4 bg-red-500 text-white rounded px-2 py-1 hover:bg-red-600"
+      title="Supprimer cette séquence"
+    >
+      ✕
+    </button>
+  </div>
+))}
 
           </div>
         )}

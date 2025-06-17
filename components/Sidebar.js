@@ -1,6 +1,8 @@
+// Sidebar.js
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { Trash2 } from "lucide-react";
 import DraggablePortal from "./DraggablePortal";
+import DragTile from "./DragTile";
 
 export default function Sidebar({ seances, refreshSeances }) {
   const handleDeleteSidebarTuiles = async () => {
@@ -43,30 +45,24 @@ export default function Sidebar({ seances, refreshSeances }) {
               transition: "z-index 0.2s"
             }}
           >
-            {seances.map((seance, index) => (
-              <Draggable key={seance.id} draggableId={seance.id} index={index}>
-                {(provided, snapshot) => {
-                  const tuile = (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className="tuile font-medium"
-                      style={{
-                        backgroundColor: seance.couleur,
-                        zIndex: snapshot.isDragging ? 1000 : 'auto',
-                        ...provided.draggableProps.style
-                      }}
-                    >
-                      {seance.titre}
-                    </div>
-                  );
-                  return snapshot.isDragging ? (
-                    <DraggablePortal>{tuile}</DraggablePortal>
-                  ) : tuile;
-                }}
-              </Draggable>
-            ))}
+            {seances
+              .filter(seance => seance.position === "sidebar")
+              .map((seance, index) => (
+                <Draggable key={seance.id} draggableId={seance.id} index={index}>
+                  {(provided, snapshot) => {
+                    const tuile = (
+                      <DragTile
+                        seance={seance}
+                        provided={provided}
+                        snapshot={snapshot}
+                      />
+                    );
+                    return snapshot.isDragging ? (
+                      <DraggablePortal>{tuile}</DraggablePortal>
+                    ) : tuile;
+                  }}
+                </Draggable>
+              ))}
             {provided.placeholder}
           </div>
         )}
@@ -75,7 +71,7 @@ export default function Sidebar({ seances, refreshSeances }) {
       <button
         onClick={handleDeleteSidebarTuiles}
         className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 mt-6 rounded flex items-center justify-center gap-2">
-        Supprimer les tuiles
+        <Trash2 size={16} /> Supprimer les tuiles
       </button>
     </aside>
   );

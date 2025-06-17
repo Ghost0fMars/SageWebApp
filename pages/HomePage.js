@@ -1,3 +1,4 @@
+// pages/HomePage.js
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
@@ -6,34 +7,32 @@ import { DragDropContext } from "react-beautiful-dnd";
 
 export default function HomePage() {
   const [cases, setCases] = useState({});
+  const userId = "session.user.id"; 
 
-  // Nouvelle fonction pour forcer le rafraîchissement des séances
-  const refreshSeances = async () => {
-    const res = await fetch('/api/seances-tiles');
+  const refreshTiles = async () => {
+    const res = await fetch(`/api/seances-tiles?userId=${userId}`);
     const data = await res.json();
 
-    // Regroupe les séances par position
-    const grouped = data.reduce((acc, seance) => {
-      const key = seance.position || "sidebar";
+    const grouped = data.reduce((acc, tile) => {
+      const key = tile.position || "sidebar";
       if (!acc[key]) acc[key] = [];
-      acc[key].push(seance);
+      acc[key].push(tile);
       return acc;
     }, {});
     setCases(grouped);
   };
 
   useEffect(() => {
-    refreshSeances();
+    refreshTiles();
 
-    // Rafraîchir les séances après ajout
-    const handler = () => refreshSeances();
+    const handler = () => refreshTiles();
     window.addEventListener("refresh-seances", handler);
 
     return () => window.removeEventListener("refresh-seances", handler);
   }, []);
 
   const handleDrag = (result) => {
-    const { source, destination, draggableId } = result;
+    const { source, destination } = result;
     if (!destination) return;
 
     const sourceId = source.droppableId;
@@ -47,22 +46,27 @@ export default function HomePage() {
 
       const [movedItem] = sourceList.splice(source.index, 1);
 
-      // Évite la duplication
       if (!destList.find(item => item.id === movedItem.id)) {
         destList.splice(destination.index, 0, movedItem);
       }
 
-      // Mise à jour en base de la position (corrigé : /api/seances/ au pluriel)
-      fetch(`/api/seances/${movedItem.id}`, {
+      fetch(`/api/seances-tiles/${movedItem.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ position: destId })
+        body: JSON.stringify({ position: destId }),
+      })
+      .then(res => res.json())
+      .then(updated => {
+        console.log("✅ Position MAJ :", updated);
+      })
+      .catch(err => {
+        console.error("❌ Erreur PATCH :", err);
       });
 
       return {
         ...prev,
         [sourceId]: sourceList,
-        [destId]: destList
+        [destId]: destList,
       };
     });
   };
@@ -75,7 +79,7 @@ export default function HomePage() {
         <main className="main-content flex gap-8 px-6 mt-8 relative">
           {/* Sidebar */}
           <div className="w-[240px] relative z-[50]">
-            <Sidebar seances={cases.sidebar || []} refreshSeances={refreshSeances} />
+            <Sidebar seances={cases.sidebar || []} refreshSeances={refreshTiles} />
           </div>
 
           {/* Emploi du temps */}

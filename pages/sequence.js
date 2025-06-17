@@ -98,30 +98,38 @@ export default function Sequence() {
   };
 
   const handleExporterTuiles = async () => {
-    const tuiles = extractTuilesFromSequence(sequence);
-    console.log("Tuiles extraites :", tuiles);
+  // Ici tu décides combien de tuiles tu veux : par exemple 5
+  const nombreTuiles = 5;
 
-    await Promise.all(
-      tuiles.map(tuile =>
-        fetch('/api/seances-tiles', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            titre: tuile.nom,
-            objectif: tuile.objectif,
-            consigne: tuile.consigne,
-            domaine: "À renseigner",
-            couleur: "#F4D35E",
-            userId: "demo-user",
-            position: "sidebar",
-          }),
-        })
-      )
-    );
+  const tuiles = Array.from({ length: nombreTuiles }, (_, i) => ({
+    titre: `${titre} – Séance ${i + 1}`,
+    domaine: router.query.domaine || "Domaine non défini",
+    sousDomaine: router.query.sousDomaine || "Sous-domaine non défini",
+    competence: competence,
+    objectif: "À compléter ou générer",
+    consigne: "À compléter ou générer",
+    couleur: "#F4D35E",
+    userId: "session.user.id",
+    position: "sidebar",
+  }));
 
-    alert("Tuiles exportées avec succès vers l'interface principale.");
-    window.dispatchEvent(new Event("refresh-seances"));
-  };
+  console.log("✅ Tuiles générées :", tuiles);
+
+  // Envoie chaque tuile à ton API
+  await Promise.all(
+    tuiles.map(tuile =>
+      fetch('/api/seances-tiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tuile),
+      })
+    )
+  );
+
+  alert("🎉 Tuiles exportées vers la sidebar !");
+  window.dispatchEvent(new Event("refresh-seances"));
+};
+
 
   return (
     <>

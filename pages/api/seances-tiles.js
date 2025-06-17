@@ -1,25 +1,64 @@
-let seances = [];
+// ✅ pages/api/seances-tiles.js
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
+  const userId = req.query.userId || req.body.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "❌ userId est requis" });
+  }
+
   if (req.method === 'GET') {
-    res.status(200).json(seances);
-  } else if (req.method === 'POST') {
-    const seance = req.body;
-    // Ajoute un id unique
-    seance.id = Date.now().toString() + Math.random().toString(36).substring(2, 8);
-    seances.push(seance);
-    res.status(201).json(seance);
-  } else if (req.method === 'PATCH') {
-    const { id } = req.query;
-    const { position } = req.body;
-    const idx = seances.findIndex(s => s.id === id);
-    if (idx !== -1) {
-      seances[idx].position = position;
-      res.status(200).json(seances[idx]);
-    } else {
-      res.status(404).json({ message: "Séance non trouvée" });
+    const tiles = await prisma.tile.findMany({
+      where: { userId },
+    });
+    return res.status(200).json(tiles);
+  }
+
+  else if (req.method === 'POST') {
+    const { titre, objectif, position, couleur } = req.body;
+
+    if (!titre || !position) {
+      return res.status(400).json({ message: "❌ titre et position sont requis" });
     }
-  } else {
+
+      const tile = await prisma.tile.create({
+      data: {
+        userId: userId,
+        titre: titre,
+        objectif: objectif,
+        position: position,
+        couleur: couleur,
+      },
+    });
+
+    return res.status(201).json(tile);
+  }
+
+  else if (req.method === 'PATCH') {
+    const { id } = req.query;
+    const updates = req.body;
+
+    const tile = await prisma.tile.update({
+      where: { id },
+      data: updates,
+    });
+
+    return res.status(200).json(tile);
+  }
+
+  else if (req.method === 'DELETE') {
+    const { id } = req.query;
+
+    await prisma.tile.delete({
+      where: { id },
+    });
+
+    return res.status(200).json({ message: "Tile supprimée" });
+  }
+
+  else {
     res.status(405).json({ message: "Méthode non autorisée" });
   }
 }

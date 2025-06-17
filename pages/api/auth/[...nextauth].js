@@ -14,16 +14,26 @@ export const authOptions = {
         password: { label: "Mot de passe", type: "password" },
       },
       async authorize(credentials) {
+        // 1️⃣ Vérifie que l'utilisateur existe
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        // ✅ On vérifie bien le bon champ :
-        if (!user || !user.hashedPassword) return null;
+        if (!user || !user.hashedPassword) {
+          return null; // ⛔ Pas d'utilisateur ou pas de mot de passe hashé
+        }
 
-        const isValid = await bcrypt.compare(credentials.password, user.hashedPassword);
-        if (!isValid) return null;
+        // 2️⃣ Vérifie que le mot de passe est correct
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword
+        );
 
+        if (!isValid) {
+          return null; // ⛔ Mot de passe incorrect
+        }
+
+        // 3️⃣ Retourne le user si tout est bon
         return user;
       },
     }),
@@ -33,6 +43,7 @@ export const authOptions = {
   },
   callbacks: {
     async session({ session, token }) {
+      // ✅ Ajoute l'ID utilisateur dans la session
       if (token?.sub) {
         session.user.id = token.sub;
       }

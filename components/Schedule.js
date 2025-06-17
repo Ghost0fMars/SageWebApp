@@ -1,9 +1,14 @@
+// Schedule.js
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import DraggablePortal from "./DraggablePortal"; // Ajout de l'import
+import DraggablePortal from "./DraggablePortal";
+import DragTile from "./DragTile";
 
 export default function Schedule({ cases }) {
   const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-  const heures = ["8h30", "9h00", "9h30", "10h00", "10h30", "11h00", "13h30", "14h00", "14h30", "15h00", "15h30", "16h00"];
+  const heures = [
+    "8h30", "9h00", "9h30", "10h00", "10h30", "11h00",
+    "13h30", "14h00", "14h30", "15h00", "15h30", "16h00"
+  ];
 
   return (
     <div className="emploi-du-temps w-full">
@@ -35,19 +40,11 @@ export default function Schedule({ cases }) {
                             <Draggable key={seance.id} draggableId={seance.id} index={index}>
                               {(provided, snapshot) => {
                                 const tuile = (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className="tuile font-medium my-1"
-                                    style={{
-                                      backgroundColor: seance.couleur,
-                                      zIndex: snapshot.isDragging ? 1000 : 'auto',
-                                      ...provided.draggableProps.style
-                                    }}
-                                  >
-                                    {seance.titre}
-                                  </div>
+                                  <DragTile
+                                    seance={seance}
+                                    provided={provided}
+                                    snapshot={snapshot}
+                                  />
                                 );
                                 return snapshot.isDragging ? (
                                   <DraggablePortal>{tuile}</DraggablePortal>

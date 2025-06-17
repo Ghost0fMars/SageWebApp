@@ -1,3 +1,4 @@
+// pages/api/sequences/index.js
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import prisma from "@/lib/prisma";
@@ -23,8 +24,8 @@ export default async function handler(req, res) {
       const sequence = await prisma.sequence.create({
         data: {
           title,
-          content,
-          userId, // ✅ On associe à l'utilisateur connecté
+          content, // ✅ content est maintenant de type JSON dans ton schema
+          userId,  // ✅ Associe bien à l'utilisateur connecté
         },
       });
       return res.status(201).json(sequence);

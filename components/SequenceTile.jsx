@@ -14,7 +14,7 @@ export default function SequenceTile({
     Arts: "#8B5CF6",
     Histoire: "#EC4899",
     EPS: "#06B6D4",
-    Default: "#6B7280",
+    Default: "#F4D35E",
   };
   const color = DOMAIN_COLORS[domaine] || DOMAIN_COLORS.Default;
 
