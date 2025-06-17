@@ -1,16 +1,17 @@
-// pages/HomePage.js
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Schedule from "@/components/Schedule";
 import { DragDropContext } from "react-beautiful-dnd";
 
 export default function HomePage() {
+  const { data: session } = useSession();
   const [cases, setCases] = useState({});
-  const userId = "session.user.id"; 
 
   const refreshTiles = async () => {
-    const res = await fetch(`/api/seances-tiles?userId=${userId}`);
+    if (!session?.user?.id) return;
+    const res = await fetch(`/api/seances-tiles?userId=${session.user.id}`);
     const data = await res.json();
 
     const grouped = data.reduce((acc, tile) => {
@@ -29,7 +30,7 @@ export default function HomePage() {
     window.addEventListener("refresh-seances", handler);
 
     return () => window.removeEventListener("refresh-seances", handler);
-  }, []);
+  }, [session]);
 
   const handleDrag = (result) => {
     const { source, destination } = result;
@@ -40,28 +41,28 @@ export default function HomePage() {
 
     if (sourceId === destId && source.index === destination.index) return;
 
-    setCases(prev => {
+    setCases((prev) => {
       const sourceList = Array.from(prev[sourceId] || []);
       const destList = Array.from(prev[destId] || []);
 
       const [movedItem] = sourceList.splice(source.index, 1);
 
-      if (!destList.find(item => item.id === movedItem.id)) {
+      if (!destList.find((item) => item.id === movedItem.id)) {
         destList.splice(destination.index, 0, movedItem);
       }
 
       fetch(`/api/seances-tiles/${movedItem.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ position: destId }),
       })
-      .then(res => res.json())
-      .then(updated => {
-        console.log("✅ Position MAJ :", updated);
-      })
-      .catch(err => {
-        console.error("❌ Erreur PATCH :", err);
-      });
+        .then((res) => res.json())
+        .then((updated) => {
+          console.log("✅ Position MAJ :", updated);
+        })
+        .catch((err) => {
+          console.error("❌ Erreur PATCH :", err);
+        });
 
       return {
         ...prev,

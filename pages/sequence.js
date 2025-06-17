@@ -70,67 +70,6 @@ export default function Sequence() {
     saveAs(blob, "sequence.docx");
   };
 
-  // Fonction d'extraction des tuiles avec nom, objectif et consigne
-  const extractTuilesFromSequence = (sequenceHtml) => {
-    const parser = new DOMParser();
-    const docHTML = parser.parseFromString(sequenceHtml, 'text/html');
-    const text = docHTML.body.textContent;
-
-    // Découpe par "Séance X -" ou "Séance X –" ou "Séance X:"
-    const blocks = text.split(/Séance\s*\d+\s*[-–:]\s*/i).filter(Boolean);
-
-    const tuiles = blocks.map(block => {
-      // Cherche le titre
-      const titreMatch = block.match(/Titre\s*:\s*(.*)/i);
-      // Cherche la consigne
-      const consigneMatch = block.match(/Consigne pour les élèves\s*:\s*(.*)/i);
-      // Cherche l'objectif (si présent)
-      const objectifMatch = block.match(/Objectif\s*:\s*(.*)/i);
-
-      return {
-        nom: titreMatch ? titreMatch[1].trim() : "Sans titre",
-        objectif: objectifMatch ? objectifMatch[1].trim() : "",
-        consigne: consigneMatch ? consigneMatch[1].trim() : "",
-      };
-    });
-
-    return tuiles;
-  };
-
-  const handleExporterTuiles = async () => {
-  // Ici tu décides combien de tuiles tu veux : par exemple 5
-  const nombreTuiles = 5;
-
-  const tuiles = Array.from({ length: nombreTuiles }, (_, i) => ({
-    titre: `${titre} – Séance ${i + 1}`,
-    domaine: router.query.domaine || "Domaine non défini",
-    sousDomaine: router.query.sousDomaine || "Sous-domaine non défini",
-    competence: competence,
-    objectif: "À compléter ou générer",
-    consigne: "À compléter ou générer",
-    couleur: "#F4D35E",
-    userId: "session.user.id",
-    position: "sidebar",
-  }));
-
-  console.log("✅ Tuiles générées :", tuiles);
-
-  // Envoie chaque tuile à ton API
-  await Promise.all(
-    tuiles.map(tuile =>
-      fetch('/api/seances-tiles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tuile),
-      })
-    )
-  );
-
-  alert("🎉 Tuiles exportées vers la sidebar !");
-  window.dispatchEvent(new Event("refresh-seances"));
-};
-
-
   return (
     <>
       <Header />
@@ -163,11 +102,7 @@ export default function Sequence() {
               <button className="button" onClick={handleExportWord}>
                 Exporter en Word
               </button>
-
-              <button className="button" onClick={handleExporterTuiles}>
-                Exporter les tuiles
-              </button>
-
+              
               <Link
                 href={{
                   pathname: '/seances',

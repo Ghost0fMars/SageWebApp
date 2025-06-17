@@ -3,30 +3,55 @@ import SequenceTile from "@/components/SequenceTile";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 export default function MesSequences() {
   const { data: session, status } = useSession();
   const [sequences, setSequences] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const handleDelete = async (id) => {
-  if (!confirm("Confirmer la suppression ?")) return;
+    if (!confirm("Confirmer la suppression ?")) return;
 
-  try {
-    const res = await fetch(`/api/sequences/${id}`, {
-      method: "DELETE",
-    });
-    if (res.ok) {
-      setSequences(sequences.filter((seq) => seq.id !== id));
-    } else {
-      alert("Erreur lors de la suppression");
+    try {
+      const res = await fetch(`/api/sequences/${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setSequences(sequences.filter((seq) => seq.id !== id));
+      } else {
+        alert("Erreur lors de la suppression");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur réseau");
     }
-  } catch (err) {
-    console.error(err);
-    alert("Erreur réseau");
-  }
   };
 
+  const handleExport = async (id) => {
+    try {
+      const res = await fetch(`/api/seances-tiles`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sequenceId: id,
+          userId: session.user.id,
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/HomePage");
+      } else {
+        alert("Erreur lors de l'export");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur réseau");
+    }
+  };
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -74,32 +99,50 @@ export default function MesSequences() {
           <p>Aucune séquence enregistrée.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
             {sequences.map((seq) => (
-  <div key={seq.id} className="flex items-start justify-between p-2 rounded-md">
-    <Link href={`/sequence/${seq.id}`} className="no-underline flex-1 block">
-      <SequenceTile
-        title={seq.title}
-        domaine={seq.content?.domaine}
-        sousDomaine={seq.content?.sousDomaine}
-        objectif={seq.content?.competence}
-      />
-    </Link>
+              <div
+                key={seq.id}
+                className="flex items-start justify-between p-2 rounded-md bg-gray-100"
+              >
+                <Link
+                  href={`/sequence/${seq.id}`}
+                  className="no-underline flex-1 block"
+                >
+                  <SequenceTile
+                    title={seq.title}
+                    domaine={seq.content?.domaine}
+                    sousDomaine={seq.content?.sousDomaine}
+                    objectif={seq.content?.competence}
+                  />
+                </Link>
 
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        handleDelete(seq.id);
-      }}
-      className="ml-4 bg-red-500 text-white rounded px-2 py-1 hover:bg-red-600"
-      title="Supprimer cette séquence"
-    >
-      ✕
-    </button>
-  </div>
-))}
+                <div className="flex flex-col items-center ml-4 space-y-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleDelete(seq.id);
+                    }}
+                    className="bg-red-500 text-white rounded-full p-2 w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors duration-200"
+                    title="Supprimer cette séquence"
+                  >
+                    ×
+                  </button>
 
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleExport(seq.id);
+                    }}
+                    className="bg-yellow-400 text-black rounded-full p-2 w-8 h-8 flex items-center justify-center hover:bg-yellow-500 transition-colors duration-200"
+                    title="Exporter vers HomePage"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

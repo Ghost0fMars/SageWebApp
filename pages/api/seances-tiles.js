@@ -17,36 +17,41 @@ export default async function handler(req, res) {
   }
 
   else if (req.method === 'POST') {
-    const { titre, objectif, position, couleur } = req.body;
+  const { sequenceId, userId } = req.body;
 
-    if (!titre || !position) {
-      return res.status(400).json({ message: "❌ titre et position sont requis" });
-    }
+  if (!sequenceId || !userId) {
+    return res.status(400).json({ message: "❌ sequenceId et userId requis" });
+  }
 
+    const seances = await prisma.seance.findMany({
+    where: { sequenceId: sequenceId },
+  });
+
+  const createdTiles = [];
+
+  for (const s of seances) {
+    const exists = await prisma.tile.findFirst({
+      where: { seanceId: s.id, userId },
+    });
+
+    if (!exists) {
       const tile = await prisma.tile.create({
-      data: {
-        userId: userId,
-        titre: titre,
-        objectif: objectif,
-        position: position,
-        couleur: couleur,
-      },
-    });
-
-    return res.status(201).json(tile);
+        data: {
+          userId: userId,
+          titre: s.title,
+          objectif: s.objectif,
+          seanceId: s.id,
+          position: "sidebar",
+          couleur: "yellow",
+        },
+      });
+      createdTiles.push(tile);
+    }
   }
 
-  else if (req.method === 'PATCH') {
-    const { id } = req.query;
-    const updates = req.body;
+  return res.status(201).json({ tiles: createdTiles });
+}
 
-    const tile = await prisma.tile.update({
-      where: { id },
-      data: updates,
-    });
-
-    return res.status(200).json(tile);
-  }
 
   else if (req.method === 'DELETE') {
     const { id } = req.query;
@@ -62,3 +67,11 @@ export default async function handler(req, res) {
     res.status(405).json({ message: "Méthode non autorisée" });
   }
 }
+
+// ✅ Pour indiquer à Next.js qu'on gère le corps et qu'on désactive la gestion automatique
+export const config = {
+  api: {
+    bodyParser: true,
+    externalResolver: true,
+  },
+};

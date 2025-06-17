@@ -1,5 +1,3 @@
-// Exemple complet avec User, Seance et Sequence
-
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -21,13 +19,24 @@ model User {
 }
 
 model Sequence {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
   title      String
-  content    Json     // ✅ On passe en Json au lieu de String pour stocker du JSON directement
-  createdAt  DateTime @default(now())
+  content    Json
+  createdAt  DateTime  @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+  seances    Seance[]  
+}
+
+model Seance {
+  id         Int       @id @default(autoincrement())
+  sequenceId String    
+  title      String
+  objectif   String
+
+  sequence   Sequence  @relation(fields: [sequenceId], references: [id]) 
+  tiles      Tile[]    
 }
 
 model Tile {
@@ -37,7 +46,9 @@ model Tile {
   objectif   String?
   position   String
   couleur    String?
+  seanceId   Int?
   createdAt  DateTime @default(now())
 
   user       User     @relation(fields: [userId], references: [id])
+  seance     Seance?  @relation(fields: [seanceId], references: [id]) 
 }
