@@ -2,10 +2,8 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import { Trash2 } from "lucide-react";
 import DraggablePortal from "./DraggablePortal";
 import DragTile from "./DragTile";
-import { useSession } from "next-auth/react";
 
 export default function Sidebar({ seances, refreshSeances }) {
-  const { data: session } = useSession();
 
   const handleDeleteSidebarTiles = async () => {
     const confirmDelete = window.confirm("Supprimer toutes les tuiles de la sidebar ?");
@@ -38,14 +36,13 @@ export default function Sidebar({ seances, refreshSeances }) {
             ref={provided.innerRef}
             {...provided.droppableProps}
             className="flex flex-col gap-2 mt-4"
-            style={{
-              position: "relative",
-              zIndex: snapshot.isDraggingOver ? 50 : 1,
-              transition: "z-index 0.2s"
-            }}
           >
             {seances.map((tile, index) => (
-              <Draggable key={tile.id} draggableId={tile.id} index={index}>
+              <Draggable
+                key={tile.id || tile.seanceId || index}
+                draggableId={(tile.id || tile.seanceId || index).toString()}
+                index={index}
+              >
                 {(provided, snapshot) => {
                   const tuile = (
                     <DragTile

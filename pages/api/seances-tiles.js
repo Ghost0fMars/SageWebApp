@@ -19,6 +19,8 @@ export default async function handler(req, res) {
   else if (req.method === 'POST') {
   const { sequenceId, userId } = req.body;
 
+  console.log("✅ Reçu sequenceId:", sequenceId, "pour userId:", userId);
+
   if (!sequenceId || !userId) {
     return res.status(400).json({ message: "❌ sequenceId et userId requis" });
   }
@@ -26,6 +28,8 @@ export default async function handler(req, res) {
     const seances = await prisma.seance.findMany({
     where: { sequenceId: sequenceId },
   });
+
+  console.log("🔍 Seances trouvées:", seances);
 
   const createdTiles = [];
 

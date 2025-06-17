@@ -20,13 +20,10 @@ export default function DragTile({ seance, provided, snapshot }) {
     >
       <strong>{seance.titre || "Sans titre"}</strong>
       <div style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>
-        Domaine : {seance.domaine || "—"}
-      </div>
-      <div style={{ fontSize: "0.8rem", marginTop: "0.1rem" }}>
         Objectif : {seance.objectif || "—"}
       </div>
       <div style={{ fontSize: "0.8rem", marginTop: "0.1rem" }}>
-        Compétence : {seance.competence || "—"}
+        Séance ID : {seance.seanceId || "—"}
       </div>
     </div>
   );
