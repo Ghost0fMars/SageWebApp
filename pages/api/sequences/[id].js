@@ -11,10 +11,22 @@ export default async function handler(req, res) {
   const { id } = req.query;
   const userId = session.user.id;
 
+  // ✅ AJOUT DU GET
+  if (req.method === "GET") {
+    const sequence = await prisma.sequence.findUnique({
+      where: { id },
+    });
+
+    if (!sequence || sequence.userId !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    return res.status(200).json(sequence);
+  }
+
   if (req.method === "PATCH") {
     const { title, content } = req.body;
 
-    // Vérifie que la séquence appartient bien à l'utilisateur connecté :
     const existing = await prisma.sequence.findUnique({
       where: { id },
     });
@@ -23,18 +35,15 @@ export default async function handler(req, res) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    // ✅ Mettre à jour la séquence
     const updated = await prisma.sequence.update({
       where: { id },
       data: { title, content },
     });
 
-    // ✅ Supprimer les Seances existantes de cette séquence
     await prisma.seance.deleteMany({
       where: { sequenceId: id },
     });
 
-    // ✅ Recréer les Seances à partir du content.seancesDetaillees
     const text = content.seancesDetaillees || "";
     const seanceBlocks = text.split(/Séance \d+ :/i).filter(Boolean);
 
@@ -57,7 +66,6 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "DELETE") {
-    // Vérifie que la séquence appartient bien à l'utilisateur connecté :
     const existing = await prisma.sequence.findUnique({
       where: { id },
     });
@@ -66,7 +74,6 @@ export default async function handler(req, res) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    // ✅ Supprimer les Seances associées avant de supprimer la séquence
     await prisma.seance.deleteMany({
       where: { sequenceId: id },
     });
@@ -78,6 +85,6 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  res.setHeader("Allow", ["PATCH", "DELETE"]);
+  res.setHeader("Allow", ["GET", "PATCH", "DELETE"]);
   res.status(405).end(`Méthode ${req.method} non autorisée`);
 }

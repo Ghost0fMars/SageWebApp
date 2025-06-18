@@ -11,30 +11,47 @@ import 'react-quill/dist/quill.snow.css';
 export default function Sequence() {
   const router = useRouter();
   const { competence, titre, domaine, sousDomaine } = router.query;
+
   const [sequence, setSequence] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [rawProgression, setRawProgression] = useState('');
+  const [generating, setGenerating] = useState(false); // ✅ renommé pour cohérence
   const [nextLoading, setNextLoading] = useState(false);
 
   const cleanText = (text) => {
     let cleaned = text.replace(/[#*]/g, '');
     cleaned = cleaned.replace(/(Objectif d'apprentissage :)/gi, '<strong>$1</strong>');
     cleaned = cleaned.replace(/(Séquence en 5 séances :)/gi, '<strong>$1</strong>');
-    cleaned = cleaned.replace(/(\d+\. (Découverte|Apprentissage|Entra[îi]nement|Synthèse|Évaluation) :) /gi, '<strong>$1</strong> ');
+    cleaned = cleaned.replace(/(\d+\. (Titre|Découverte|Apprentissage|Entra[îi]nement|Synthèse|Évaluation) :) /gi, '<strong>$1</strong> ');
     cleaned = cleaned.split('\n').map(line => `<p>${line.trim()}</p>`).join('');
     return cleaned;
   };
 
   const handleGenerate = async () => {
-    setLoading(true);
-    const res = await fetch('/api/genere-sequence', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ competence }),
-    });
-    const data = await res.json();
-    const cleaned = cleanText(data.resultat);
-    setSequence(cleaned);
-    setLoading(false);
+    setGenerating(true);
+    try {
+      const res = await fetch('/api/genere-sequence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          competence, 
+          titre, 
+          domaine, 
+          sousDomaine,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Erreur lors de la génération");
+
+      const data = await res.json();
+      setRawProgression(data.resultat);
+      const cleaned = cleanText(data.resultat);
+      setSequence(cleaned);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Erreur de génération");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleExportWord = async () => {
@@ -73,24 +90,48 @@ export default function Sequence() {
   const handleNext = async () => {
     setNextLoading(true);
     try {
-      const res = await fetch('/api/sequences/create-seances', {
+      const res = await fetch('/api/sequences/create-or-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: titre,
           domaine,
           sousDomaine,
-          nbSeances: 5,
+          competence,
+          progression: sequence,
         }),
       });
 
       const data = await res.json();
+      const sequenceId = data.sequenceId;
 
-      // ✅ Redirige vers /seances avec le sequenceId
-      router.push(`/seances?sequenceId=${data.sequenceId}`);
+      const blocs = rawProgression.split(/\n\d+\. Titre/).filter(Boolean).slice(1);
+      console.log("Découpage blocs :", blocs);
+
+      if (blocs.length < 5) {
+        alert("Problème : progression incomplète, moins de 5 blocs !");
+        return;
+      }
+
+      await Promise.all(
+        blocs.map((bloc, i) =>
+          fetch('/api/seances', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sequenceId,
+              title: `Séance ${i + 1}`,
+              objectif: bloc.trim(),
+            }),
+          })
+        )
+      );
+
+      router.push(`/seances?sequenceId=${sequenceId}`);
+
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la création des séances");
+      alert(err.message || "Erreur lors de la sauvegarde ou création des séances");
     } finally {
       setNextLoading(false);
     }
@@ -104,15 +145,13 @@ export default function Sequence() {
         <p><strong>Titre de la séquence :</strong> {titre}</p>
         <p><strong>Compétence à travailler :</strong> {competence}</p>
 
-        <button className="button" onClick={handleGenerate}>
-          Générer séquence
+        <button
+          className="button"
+          onClick={handleGenerate}
+          disabled={generating}
+        >
+          {generating ? "Génération en cours..." : "Générer séquence"}
         </button>
-
-        {loading && (
-          <div style={{ marginTop: '1rem' }}>
-            <p>⏳ L'IA génère la séquence, merci de patienter…</p>
-          </div>
-        )}
 
         {sequence && (
           <div style={{ marginTop: '1rem' }}>

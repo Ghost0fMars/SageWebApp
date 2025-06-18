@@ -239,3 +239,15 @@ html, body {
 .bouton-reset-emploi {
   margin-top: 2rem;
 }
+
+.ql-container {
+  border: none !important;
+}
+
+.ql-editor {
+  border: none !important;
+}
+
+.ql-toolbar {
+  border: none !important;
+}
