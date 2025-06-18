@@ -14,7 +14,6 @@ export default function Seances() {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
 
-  // ✅ Charger les Seances liées à la Sequence
   useEffect(() => {
     const fetchSeances = async () => {
       if (!sequenceId) return;
@@ -27,34 +26,38 @@ export default function Seances() {
     fetchSeances();
   }, [sequenceId]);
 
-  const handleUpdate = (index, field, value) => {
+  const handleUpdate = (index, value) => {
     const updated = [...seances];
-    updated[index][field] = value;
+
+    const objectifMatch = value.match(/<p><strong>Objectif :<\/strong>(.*?)<\/p>/);
+    const consigneMatch = value.match(/<p><strong>Consigne :<\/strong>(.*?)<\/p>/);
+
+    updated[index].objectif = objectifMatch ? objectifMatch[1].trim() : '';
+    updated[index].consigne = consigneMatch ? consigneMatch[1].trim() : '';
+
     setSeances(updated);
   };
 
   const handleSaveAll = async () => {
     try {
-      // ✅ PATCH chaque Seance pour sauvegarder objectif final
       await Promise.all(
         seances.map(seance =>
           fetch(`/api/seances/${seance.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              subtitle: seance.subtitle,
               objectif: seance.objectif,
+              consigne: seance.consigne,
             }),
           })
         )
       );
 
-      // ✅ Crée les Tiles une fois les séances sauvegardées
       await fetch('/api/seances-tiles', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sequenceId,
-        }),
+        body: JSON.stringify({ sequenceId }),
       });
 
       alert("Toutes les séances ont été sauvegardées et exportées en tuiles !");
@@ -73,7 +76,6 @@ export default function Seances() {
     setGenerating(true);
 
     try {
-      // ✅ Recharger la Sequence pour récupérer progression + domaine + sousDomaine
       const sequenceRes = await fetch(`/api/sequences/${sequenceId}`);
       const sequenceData = await sequenceRes.json();
 
@@ -86,17 +88,10 @@ export default function Seances() {
         return;
       }
 
-      console.log("✅ Génération détaillée pour :", { progression, domaine, sousDomaine });
-
-      // ✅ Appel à l'API IA
       const res = await fetch("/api/genere-seances", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sequence: progression,
-          domaine,
-          sousDomaine,
-        }),
+        body: JSON.stringify({ sequence: progression, domaine, sousDomaine }),
       });
 
       const data = await res.json();
@@ -107,10 +102,8 @@ export default function Seances() {
         return;
       }
 
-      // ✅ Découper le texte généré
       const seanceBlocks = data.resultat.split(/Séance \d+ :/i).filter(Boolean);
 
-      // ✅ PATCH chaque Seance avec son détail généré
       await Promise.all(
         seances.map((seance, i) =>
           fetch(`/api/seances/${seance.id}`, {
@@ -118,6 +111,7 @@ export default function Seances() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               objectif: seanceBlocks[i] || "Objectif généré indisponible",
+              consigne: "",
             }),
           })
         )
@@ -153,17 +147,18 @@ export default function Seances() {
         {loading && <p>Chargement des séances...</p>}
         {!loading && seances.length === 0 && <p>Aucune séance trouvée.</p>}
 
-        {!loading && seances.map((seance, index) => (
+        {!loading && seances.map((seance) => (
           <div key={seance.id} style={{ marginBottom: '2rem' }}>
-            <h2>{seance.title}</h2>
+            <h2>{seance.title} {seance.subtitle || seance.objectif?.split('.')[0] || "Titre non défini"}</h2>
+
             <ReactQuill
               theme="snow"
-              value={seance.objectif}
-              onChange={(value) => handleUpdate(index, "objectif", value)}
+              value={`<p><strong>Objectif :</strong> ${seance.objectif || ''}</p><p><strong>Consigne :</strong> ${seance.consigne || ''}</p>`}
+              onChange={(value) => handleUpdate(seances.indexOf(seance), value)}
               style={{
-                height: '200px',
+                height: '300px',
                 overflowY: 'auto',
-                marginBottom: '1rem'
+                marginBottom: '1rem',
               }}
             />
           </div>

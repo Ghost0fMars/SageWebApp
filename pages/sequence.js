@@ -14,7 +14,7 @@ export default function Sequence() {
 
   const [sequence, setSequence] = useState('');
   const [rawProgression, setRawProgression] = useState('');
-  const [generating, setGenerating] = useState(false); // ✅ renommé pour cohérence
+  const [generating, setGenerating] = useState(false);
   const [nextLoading, setNextLoading] = useState(false);
 
   const cleanText = (text) => {
@@ -105,6 +105,7 @@ export default function Sequence() {
       const data = await res.json();
       const sequenceId = data.sequenceId;
 
+      // ✅ Découpage
       const blocs = rawProgression.split(/\n\d+\. Titre/).filter(Boolean).slice(1);
       console.log("Découpage blocs :", blocs);
 
@@ -113,18 +114,29 @@ export default function Sequence() {
         return;
       }
 
+      // ✅ Crée séances avec sous-titre + objectif + consigne
       await Promise.all(
-        blocs.map((bloc, i) =>
-          fetch('/api/seances', {
+        blocs.map((bloc, i) => {
+          const titreMatch = bloc.match(/(?:Titre|Découverte|Apprentissage|Synthèse|Évaluation)\s*:? (.*)/i) || bloc.match(/^(.+)/);
+          const objectifMatch = bloc.match(/Objectif\s*:\s*(.*)/i);
+          const consigneMatch = bloc.match(/Consigne\s*:\s*(.*)/i);
+
+          const titreBloc = titreMatch ? titreMatch[1].trim() : `Séance ${i + 1}`;
+          const objectifBloc = objectifMatch ? objectifMatch[1].trim() : '';
+          const consigneBloc = consigneMatch ? consigneMatch[1].trim() : '';
+
+          return fetch('/api/seances', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               sequenceId,
               title: `Séance ${i + 1}`,
-              objectif: bloc.trim(),
+              subtitle: titreBloc,
+              objectif: objectifBloc,
+              consigne: consigneBloc,
             }),
-          })
-        )
+          });
+        })
       );
 
       router.push(`/seances?sequenceId=${sequenceId}`);

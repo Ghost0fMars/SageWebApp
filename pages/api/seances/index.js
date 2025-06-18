@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (!session) return res.status(401).json({ message: "Unauthorized" });
 
   if (req.method === "POST") {
-    const { title, objectif, sequenceId } = req.body;
+    const { title, subtitle, objectif, consigne, sequenceId } = req.body;
 
     if (!sequenceId || !title) {
       return res.status(400).json({ message: "Données manquantes." });
@@ -16,7 +16,9 @@ export default async function handler(req, res) {
     const seance = await prisma.seance.create({
       data: {
         title,
+        subtitle,
         objectif,
+        consigne,
         sequenceId,
       },
     });
@@ -39,6 +41,21 @@ export default async function handler(req, res) {
     return res.status(200).json(seances);
   }
 
-  res.setHeader('Allow', ['GET', 'POST']);
+  if (req.method === "PATCH") {
+    const { id, objectif, consigne } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "ID de la séance manquant." });
+    }
+
+    const updated = await prisma.seance.update({
+      where: { id },
+      data: { subtitle, objectif, consigne },
+    });
+
+    return res.status(200).json(updated);
+  }
+
+  res.setHeader('Allow', ['GET', 'POST', 'PATCH']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
