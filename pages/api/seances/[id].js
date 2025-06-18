@@ -4,16 +4,21 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   if (req.method === 'PATCH') {
-    const { position } = req.body;
+    const { position, objectif } = req.body; // ✅ on accepte les deux
+
+    const data = {};
+    if (position !== undefined) data.position = position;
+    if (objectif !== undefined) data.objectif = objectif;
+
     try {
       const updated = await prisma.seance.update({
         where: { id },
-        data: { position },
+        data: data,
       });
       return res.status(200).json(updated);
     } catch (error) {
       console.error('Erreur PATCH:', error);
-      return res.status(500).json({ error: "Erreur de mise à jour de la position" });
+      return res.status(500).json({ error: "Erreur de mise à jour de la séance" });
     }
   }
 

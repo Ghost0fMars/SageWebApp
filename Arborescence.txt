@@ -1,75 +1,64 @@
 sagewebapp/
 │
-├── 📁 components/
-│   ├── 📁 layout/
-│   │   ├── Header.js
-│   │   ├── Sidebar.js
-│   │
-│   ├── 📁 auth/
-│   │   ├── LoginForm.js
-│   │   ├── SignupForm.js
-│   │
-│   ├── 📁 schedule/
-│   │   ├── Schedule.js         # Grille Emploi du temps (drag & drop)
-│   │   ├── DraggablePortal.js  # Composant pour drag
-│   │
-│   ├── 📁 tiles/
-│   │   ├── Tile.js             # Composant Tuile (colorée)
+├── components/
+│   ├── DragTile.jsx      # Composant tuile draggable
+│   ├── DraggablePortal.js
+│   ├── Header.js
+│   ├── LoginForm.js
+│   ├── Schedule.js
+│   ├── SequenceTile.jsx
+│   ├── Sidebar.js
+│   └── tiles.js
 │
-│   ├── 📁 sequences/
-│   │   ├── SequenceTable.js    # Tableau élégant pour une séquence complète
-│   │   ├── SeanceDetail.js     # Affichage détaillé d'une séance
+├── lib/
+│   ├── prisma.js         # Connexion Prisma
+│   └── prisma/           # Migrations et schéma Prisma
 │
-│
-├── 📁 lib/
-│   ├── prisma.js                # Connexion Prisma
-│   ├── auth.js                  # Logique Auth/Session
-│   ├── sequence.js              # Logique CRUD séquence
-│   ├── seance.js                # Logique CRUD séance
-│   ├── tile.js                  # Logique CRUD tuile
-│
-│
-├── 📁 pages/
-│   ├── 📁 api/
-│   │   ├── 📁 auth/
+├── pages/
+│   ├── api/
+│   │   ├── auth/
 │   │   │   ├── [...nextauth].js  # NextAuth routes
-│   │   │   ├── signup.js         # Optionnel
-│   │
-│   │   ├── 📁 sequences/
-│   │   │   ├── create.js         # POST : Créer Séquence + Séances + Tuiles
-│   │   │   ├── [id].js           # GET : Récupérer une Séquence
-│   │
-│   │   ├── 📁 seances/
-│   │   │   ├── create.js         # POST : Créer une Séance seule (optionnel)
-│   │   │   ├── [id].js           # GET : Récupérer une Séance détaillée
-│   │
-│   │   ├── 📁 tiles/
-│   │   │   ├── updatePlacement.js # POST : Maj placement (drag & drop)
-│   │   │   ├── unplaced.js        # GET : Tuiles non placées
-│   │
-│   │   ├── 📁 schedule/
-│   │   │   ├── index.js           # GET : Emploi du temps complet
-│   │
-│   │   ├── 📁 journal/
-│   │   │   ├── index.js           # GET : Cahier journal généré
+│   │   │   └── signup.js         # Inscription
+│   │   ├── seances/
+│   │   │   ├── [id].js           # GET séance détaillée
+│   │   │   ├── index.js          # CRUD séances
+│   │   │   └── reset.js          # Réinitialiser séances
+│   │   ├── sequences/
+│   │   │   ├── [id].js           # GET séquence
+│   │   │   ├── index.js          # CRUD séquences
+│   │   ├── genere-seances.js     # Générer séances avec IA
+│   │   ├── genere-sequence.js    # Générer séquence avec IA
+│   │   ├── seances-tiles.js      # Tuiles de séances
+│   │   ├── sequence.js           # CRUD sequence unique
+│   ├── HomePage.js               # Page d'accueil
+│   ├── MesSequences.js           # Liste des séquences
+│   ├── _app.js                   # Config Next.js
+│   ├── classe.js                 # Page Classe
+│   ├── fil.js                    # Page Fil d'actu
+│   ├── formulaire.js             # Page Formulaire
+│   ├── index.js                  # Redirection ou Landing
+│   ├── login.js                  # Connexion
+│   ├── profil.js                 # Profil utilisateur
+│   ├── seances.js                # Liste séances
+│   ├── sequence.js               # Création de séquence
+│   ├── signup.js                 # Inscription
+│   ├── sequence/[id].js          # Détail séquence
 │
+├── public/
+│   ├── banniere-sage.png
+│   ├── logo-sage.png
+│   └── data/competences.json
 │
-│   ├── index.js                   # Page d'accueil
-│   ├── login.js                   # Page de connexion
-│   ├── MesSequences.js            # Liste des Séquences
-│   ├── SequencePage.js            # Page : 1 Séquence + son tableau + Tuiles
-│   ├── SeancePage.js              # Page : 1 Séance détaillée
-│   ├── SchedulePage.js            # Page : Emploi du temps (drag & drop)
-│   ├── JournalPage.js             # Page : Cahier Journal
-│   ├── profil.js                  # Profil utilisateur
-│   ├── _app.js                    # Config globale
+├── styles/
+│   └── globals.css
 │
-│
-├── 📄 package.json
-├── 📄 next.config.js
-├── 📄 tailwind.config.js
-├── 📄 postcss.config.js
-├── 📄 jsconfig.json
-├── 📄 .env
-├── 📄 .gitignore
-└── 📄 README.md
+├── .gitignore
+├── Arborescence.txt
+├── Boucle des fonctions.txt
+├── README.md
+├── jsconfig.json
+├── next.config.js
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+└── tailwind.config.js

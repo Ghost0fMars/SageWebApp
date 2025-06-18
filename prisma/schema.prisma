@@ -8,47 +8,46 @@ generator client {
 }
 
 model User {
-  id             String     @id @default(cuid())
-  email          String     @unique
+  id             String   @id @default(cuid())
+  email          String   @unique
   name           String?
   hashedPassword String?
-  createdAt      DateTime   @default(now())
+  createdAt      DateTime @default(now())
 
-  sequences      Sequence[]
-  tiles          Tile[]
+  sequences Sequence[]
+  tiles     Tile[]
 }
 
 model Sequence {
-  id         String    @id @default(cuid())
-  userId     String
-  title      String
-  content    Json
-  createdAt  DateTime  @default(now())
-
-  user       User      @relation(fields: [userId], references: [id])
-  seances    Seance[]  
+  id        String   @id @default(cuid())
+  title     String   @unique // 👈 AJOUTER ÇA
+  content   Json
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  seances   Seance[]
+  createdAt DateTime @default(now())
 }
 
 model Seance {
-  id         Int       @id @default(autoincrement())
-  sequenceId String    
+  id         String   @id @default(cuid())
   title      String
   objectif   String
-
-  sequence   Sequence  @relation(fields: [sequenceId], references: [id]) 
-  tiles      Tile[]    
+  position   String? // ✅ AJOUTER CECI !
+  sequenceId String
+  sequence   Sequence @relation(fields: [sequenceId], references: [id])
+  tiles      Tile[]
 }
 
 model Tile {
-  id         String   @id @default(cuid())
-  userId     String
-  titre      String
-  objectif   String?
-  position   String
-  couleur    String?
-  seanceId   Int?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  titre     String
+  objectif  String?
+  position  String
+  couleur   String?
+  seanceId  String? // ✅ Corrigé : même type que Seance.id
+  createdAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
-  seance     Seance?  @relation(fields: [seanceId], references: [id]) 
+  user   User    @relation(fields: [userId], references: [id])
+  seance Seance? @relation(fields: [seanceId], references: [id])
 }

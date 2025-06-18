@@ -3,7 +3,6 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
-import Link from 'next/link';
 import Header from '../components/Header';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -11,9 +10,10 @@ import 'react-quill/dist/quill.snow.css';
 
 export default function Sequence() {
   const router = useRouter();
-  const { competence, titre } = router.query;
+  const { competence, titre, domaine, sousDomaine } = router.query;
   const [sequence, setSequence] = useState('');
   const [loading, setLoading] = useState(false);
+  const [nextLoading, setNextLoading] = useState(false);
 
   const cleanText = (text) => {
     let cleaned = text.replace(/[#*]/g, '');
@@ -70,6 +70,32 @@ export default function Sequence() {
     saveAs(blob, "sequence.docx");
   };
 
+  const handleNext = async () => {
+    setNextLoading(true);
+    try {
+      const res = await fetch('/api/sequences/create-seances', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: titre,
+          domaine,
+          sousDomaine,
+          nbSeances: 5,
+        }),
+      });
+
+      const data = await res.json();
+
+      // ✅ Redirige vers /seances avec le sequenceId
+      router.push(`/seances?sequenceId=${data.sequenceId}`);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la création des séances");
+    } finally {
+      setNextLoading(false);
+    }
+  };
+
   return (
     <>
       <Header />
@@ -102,24 +128,14 @@ export default function Sequence() {
               <button className="button" onClick={handleExportWord}>
                 Exporter en Word
               </button>
-              
-              <Link
-                href={{
-                  pathname: '/seances',
-                  query: {
-                    sequence: sequence,
-                    titre: titre,
-                    competence: competence,
-                    domaine: router.query.domaine,
-                    sousDomaine: router.query.sousDomaine
-                  }
-                }}
-                legacyBehavior
+
+              <button
+                className="button"
+                onClick={handleNext}
+                disabled={nextLoading}
               >
-                <button className="button" style={{ display: 'inline-block' }}>
-                  Suivant
-                </button>
-              </Link>
+                {nextLoading ? "Création en cours..." : "Suivant"}
+              </button>
             </div>
           </div>
         )}

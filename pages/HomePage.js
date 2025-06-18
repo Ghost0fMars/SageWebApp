@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Schedule from "@/components/Schedule";
@@ -7,12 +8,23 @@ import { DragDropContext } from "react-beautiful-dnd";
 
 export default function HomePage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [cases, setCases] = useState({});
 
-  const refreshTiles = async () => {
+  const refreshSeances = async () => {
     if (!session?.user?.id) return;
-    const res = await fetch(`/api/seances-tiles?userId=${session.user.id}`);
+
+    const { sequenceId } = router.query;
+
+    // ✅ Construire la query proprement
+    const query = sequenceId ? `?sequenceId=${sequenceId}` : "";
+    const res = await fetch(`/api/seances${query}`);
     const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      console.error("❌ L'API /api/seances a renvoyé une erreur :", data);
+      return;
+    }
 
     const grouped = data.reduce((acc, tile) => {
       const key = tile.position || "sidebar";
@@ -24,13 +36,13 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    refreshTiles();
+    refreshSeances();
 
-    const handler = () => refreshTiles();
+    const handler = () => refreshSeances();
     window.addEventListener("refresh-seances", handler);
 
     return () => window.removeEventListener("refresh-seances", handler);
-  }, [session]);
+  }, [session, router.query]); // ✅ Rafraîchit si query change
 
   const handleDrag = (result) => {
     const { source, destination } = result;
@@ -51,7 +63,7 @@ export default function HomePage() {
         destList.splice(destination.index, 0, movedItem);
       }
 
-      fetch(`/api/seances-tiles/${movedItem.id}`, {
+      fetch(`/api/seances/${movedItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ position: destId }),
@@ -80,7 +92,7 @@ export default function HomePage() {
         <main className="main-content flex gap-8 px-6 mt-8 relative">
           {/* Sidebar */}
           <div className="w-[240px] relative z-[50]">
-            <Sidebar seances={cases.sidebar || []} refreshSeances={refreshTiles} />
+            <Sidebar seances={cases.sidebar || []} refreshSeances={refreshSeances} />
           </div>
 
           {/* Emploi du temps */}

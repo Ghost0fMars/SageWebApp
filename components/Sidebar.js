@@ -11,7 +11,7 @@ export default function Sidebar({ seances, refreshSeances }) {
 
     await Promise.all(
       seances.map(tile =>
-        fetch(`/api/seances-tiles?id=${tile.id}`, {
+        fetch(`/api/seances/${tile.id}`, {
           method: 'DELETE'
         })
       )

@@ -29,28 +29,9 @@ export default function MesSequences() {
     }
   };
 
-  const handleExport = async (id) => {
-    try {
-      const res = await fetch(`/api/seances-tiles`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sequenceId: id,
-          userId: session.user.id,
-        }),
-      });
-
-      if (res.ok) {
-        router.push("/HomePage");
-      } else {
-        alert("Erreur lors de l'export");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Erreur réseau");
-    }
+  const handleExport = (id) => {
+    // ✅ Plus de POST : on redirige vers HomePage avec un cache-buster pour forcer le refresh
+    router.push(`/HomePage?refresh=${Date.now()}`);
   };
 
   useEffect(() => {
