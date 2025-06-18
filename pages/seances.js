@@ -11,33 +11,47 @@ export default function Seances() {
   const { sequenceId } = router.query;
 
   const [seances, setSeances] = useState([]);
+  const [sequence, setSequence] = useState(null); // ✅ Pour récupérer la compétence
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
 
+  // ✅ Charger séances + séquence
   useEffect(() => {
-    const fetchSeances = async () => {
+    const fetchData = async () => {
       if (!sequenceId) return;
+
       setLoading(true);
-      const res = await fetch(`/api/seances?sequenceId=${sequenceId}`);
-      const data = await res.json();
-      setSeances(data);
+
+      // Fetch séances
+      const resSeances = await fetch(`/api/seances?sequenceId=${sequenceId}`);
+      const dataSeances = await resSeances.json();
+      setSeances(dataSeances);
+
+      // Fetch séquence pour compétence
+      const resSequence = await fetch(`/api/sequences/${sequenceId}`);
+      const dataSequence = await resSequence.json();
+      setSequence(dataSequence);
+
       setLoading(false);
     };
-    fetchSeances();
+
+    fetchData();
   }, [sequenceId]);
 
+  // ✅ Mettre à jour localement
   const handleUpdate = (index, value) => {
     const updated = [...seances];
-
     const objectifMatch = value.match(/<p><strong>Objectif :<\/strong>(.*?)<\/p>/);
     const consigneMatch = value.match(/<p><strong>Consigne :<\/strong>(.*?)<\/p>/);
 
     updated[index].objectif = objectifMatch ? objectifMatch[1].trim() : '';
     updated[index].consigne = consigneMatch ? consigneMatch[1].trim() : '';
+    updated[index].detailed = value; // ✅ Permet de garder le texte complet
 
     setSeances(updated);
   };
 
+  // ✅ Sauvegarder toutes les séances
   const handleSaveAll = async () => {
     try {
       await Promise.all(
@@ -46,82 +60,65 @@ export default function Seances() {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              id: seance.id,
               subtitle: seance.subtitle,
               objectif: seance.objectif,
               consigne: seance.consigne,
+              detailed: seance.detailed,
             }),
           })
         )
       );
-
-      await fetch('/api/seances-tiles', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sequenceId }),
-      });
-
-      alert("Toutes les séances ont été sauvegardées et exportées en tuiles !");
+      alert("Toutes les séances ont été sauvegardées !");
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la sauvegarde des séances.");
+      alert("Erreur lors de la sauvegarde.");
     }
   };
 
-  const handleGenerateDetailed = async () => {
-    if (!sequenceId) {
-      alert("Aucun sequenceId détecté !");
+  // ✅ Générer UNE séance avec Objectif + Compétence
+  const handleGenerateOne = async (seance) => {
+    if (!seance?.id) return;
+    if (!sequence?.content?.competence) {
+      alert("Compétence introuvable !");
       return;
     }
 
     setGenerating(true);
 
     try {
-      const sequenceRes = await fetch(`/api/sequences/${sequenceId}`);
-      const sequenceData = await sequenceRes.json();
-
-      const progression = sequenceData.content?.progression || "";
-      const domaine = sequenceData.content?.domaine || "";
-      const sousDomaine = sequenceData.content?.sousDomaine || "";
-
-      if (!progression) {
-        alert("Impossible de générer : la progression est vide !");
-        return;
-      }
-
-      const res = await fetch("/api/genere-seances", {
+      // Appel API pour générer
+      const res = await fetch("/api/genere-seance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sequence: progression, domaine, sousDomaine }),
+        body: JSON.stringify({
+          objectif: seance.objectif,
+          competence: sequence.content.competence,
+        }),
       });
 
       const data = await res.json();
+      if (res.status !== 200) throw new Error(data.error);
 
-      if (res.status !== 200) {
-        console.error("❌ Erreur API :", data);
-        alert("Erreur API : " + data.error);
-        return;
-      }
+      // PATCH DB
+      await fetch(`/api/seances/${seance.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: seance.id,
+          detailed: data.resultat,
+        }),
+      });
 
-      const seanceBlocks = data.resultat.split(/Séance \d+ :/i).filter(Boolean);
-
-      await Promise.all(
-        seances.map((seance, i) =>
-          fetch(`/api/seances/${seance.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              objectif: seanceBlocks[i] || "Objectif généré indisponible",
-              consigne: "",
-            }),
-          })
-        )
+      // ✅ Mettre à jour l'état local pour Quill : INSTANTANÉ
+      const updated = seances.map((s) =>
+        s.id === seance.id ? { ...s, detailed: data.resultat } : s
       );
-
-      window.location.reload();
+      setSeances(updated);
 
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la génération automatique.");
+      alert("Erreur lors de la génération : " + err.message);
     } finally {
       setGenerating(false);
     }
@@ -133,34 +130,31 @@ export default function Seances() {
       <div className="container">
         <h1>Séances <span className="accent">détaillées</span></h1>
 
-        {seances.length > 0 && (
-          <button
-            className="button"
-            onClick={handleGenerateDetailed}
-            disabled={generating}
-            style={{ marginBottom: '1rem' }}
-          >
-            {generating ? "Génération en cours..." : "Générer séances détaillées"}
-          </button>
-        )}
-
-        {loading && <p>Chargement des séances...</p>}
+        {loading && <p>Chargement...</p>}
         {!loading && seances.length === 0 && <p>Aucune séance trouvée.</p>}
 
-        {!loading && seances.map((seance) => (
+        {!loading && seances.map((seance, index) => (
           <div key={seance.id} style={{ marginBottom: '2rem' }}>
-            <h2>{seance.title} {seance.subtitle || seance.objectif?.split('.')[0] || "Titre non défini"}</h2>
+            <h2>{seance.title} — {seance.subtitle || "Sans titre"}</h2>
 
             <ReactQuill
               theme="snow"
-              value={`<p><strong>Objectif :</strong> ${seance.objectif || ''}</p><p><strong>Consigne :</strong> ${seance.consigne || ''}</p>`}
-              onChange={(value) => handleUpdate(seances.indexOf(seance), value)}
-              style={{
-                height: '300px',
-                overflowY: 'auto',
-                marginBottom: '1rem',
-              }}
+              value={
+                seance.detailed
+                  || `<p><strong>Objectif :</strong> ${seance.objectif || ''}</p><p><strong>Consigne :</strong> ${seance.consigne || ''}</p>`
+              }
+              onChange={(value) => handleUpdate(index, value)}
+              style={{ height: '400px', overflowY: 'auto', marginBottom: '1rem' }}
             />
+
+            <button
+              className="button"
+              onClick={() => handleGenerateOne(seance)}
+              disabled={generating}
+              style={{ marginBottom: '1rem' }}
+            >
+              {generating ? "Génération..." : "Générer cette séance"}
+            </button>
           </div>
         ))}
 
