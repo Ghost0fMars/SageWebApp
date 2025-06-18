@@ -135,7 +135,7 @@ export default function Seances() {
 
         {!loading && seances.map((seance, index) => (
           <div key={seance.id} style={{ marginBottom: '2rem' }}>
-            <h2>{seance.title} — {seance.subtitle || "Sans titre"}</h2>
+            <h2>{seance.title} {seance.subtitle || "Sans titre"}</h2>
 
             <ReactQuill
               theme="snow"

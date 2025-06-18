@@ -1,13 +1,34 @@
-import Header from "@/components/Header";
-import { PrismaClient } from "@prisma/client";
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import Header from '@/components/Header';
 
-export default function SequencePage({ sequence }) {
-  if (!sequence) {
+export default function Sequence() {
+  const router = useRouter();
+  const { id } = router.query;
+
+  const [sequence, setSequence] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!id) return;
+
+      const res = await fetch(`/api/sequences/${id}`);
+      const data = await res.json();
+
+      setSequence(data);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
     return (
       <>
         <Header />
         <div className="container">
-          <h1>Séquence introuvable</h1>
+          <h1>Chargement...</h1>
         </div>
       </>
     );
@@ -17,36 +38,29 @@ export default function SequencePage({ sequence }) {
     <>
       <Header />
       <div className="container">
-        <h1 className="text-2xl font-bold mb-4">{sequence.title}</h1>
-        <p className="mb-4"><strong>Compétence :</strong> {sequence.content.competence}</p>
-        <div
-          className="prose prose-sm max-w-none"
-          dangerouslySetInnerHTML={{
-            __html: sequence.content.seancesDetaillees,
-          }}
-        />
+        <h1>{sequence?.title}</h1>
+        <p><strong>Compétence :</strong> {sequence?.content?.competence}</p>
+
+        {sequence?.seances?.length === 0 ? (
+          <p>Aucune séance trouvée pour cette séquence.</p>
+        ) : (
+          sequence.seances.map((seance) => (
+            <div
+              key={seance.id}
+              style={{
+                marginBottom: '2rem',
+                padding: '1rem',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                background: '#f9f9f9',
+              }}
+            >
+              <h2>{seance.title} — {seance.subtitle}</h2>
+              <div dangerouslySetInnerHTML={{ __html: seance.detailed || '<p>Pas de contenu détaillé.</p>' }} />
+            </div>
+          ))
+        )}
       </div>
     </>
   );
-}
-
-export async function getServerSideProps({ params }) {
-  const prisma = new PrismaClient();
-  const sequence = await prisma.sequence.findUnique({
-    where: { id: params.id },
-  });
-
-  if (!sequence) {
-    return { props: { sequence: null } };
-  }
-
-  return {
-    props: {
-      sequence: {
-        id: sequence.id,
-        title: sequence.title,
-        content: sequence.content,
-      },
-    },
-  };
 }

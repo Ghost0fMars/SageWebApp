@@ -11,10 +11,15 @@ export default async function handler(req, res) {
   const { id } = req.query;
   const userId = session.user.id;
 
-  // ✅ AJOUT DU GET
+  // ✅ GET : Séquence + toutes ses séances liées
   if (req.method === "GET") {
     const sequence = await prisma.sequence.findUnique({
       where: { id },
+      include: {
+        seances: {
+          orderBy: { title: "asc" }, // trier par titre pour ordre logique
+        },
+      },
     });
 
     if (!sequence || sequence.userId !== userId) {
@@ -24,6 +29,7 @@ export default async function handler(req, res) {
     return res.status(200).json(sequence);
   }
 
+  // ✅ PATCH (inchangé)
   if (req.method === "PATCH") {
     const { title, content } = req.body;
 
@@ -65,6 +71,7 @@ export default async function handler(req, res) {
     return res.status(200).json(updated);
   }
 
+  // ✅ DELETE (inchangé)
   if (req.method === "DELETE") {
     const existing = await prisma.sequence.findUnique({
       where: { id },
