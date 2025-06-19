@@ -38,20 +38,28 @@ export default function SeanceDetails() {
     <>
       <Header />
       <div className="container">
-        <h1>{seance?.title} — {seance?.subtitle}</h1>
-        <p><strong>Objectif :</strong> {seance?.objectif}</p>
-        <p><strong>Consigne :</strong> {seance?.consigne}</p>
+        <h1>
+            {seance?.title}
+            {seance?.subtitle ? ` ${seance.subtitle}` : ''}
+        </h1>
 
-        <div
-          style={{
-            marginTop: '2rem',
-            padding: '1rem',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            background: '#f9f9f9',
-          }}
-          dangerouslySetInnerHTML={{ __html: seance?.detailed || "<p>Pas de contenu détaillé disponible.</p>" }}
-        />
+
+<p><strong>Objectif :</strong> {seance?.objectif || "Non défini"}</p>
+<p><strong>Consigne :</strong> {seance?.consigne || "Non définie"}</p>
+
+<div
+  style={{
+    marginTop: '2rem',
+    padding: '1rem',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    background: '#f9f9f9',
+  }}
+  dangerouslySetInnerHTML={{
+    __html: seance?.detailed || "<p>Pas de contenu détaillé disponible.</p>"
+  }}
+/>
+
       </div>
     </>
   );

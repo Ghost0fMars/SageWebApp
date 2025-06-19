@@ -38,18 +38,22 @@ export default function Seances() {
     fetchData();
   }, [sequenceId]);
 
-  // ✅ Mettre à jour localement
   const handleUpdate = (index, value) => {
-    const updated = [...seances];
+  const updated = [...seances];
+
+  // Autorise la modification seulement si la séance n’est pas encore générée
+  if (!updated[index].detailed || updated[index].detailed.includes("Objectif")) {
     const objectifMatch = value.match(/<p><strong>Objectif :<\/strong>(.*?)<\/p>/);
     const consigneMatch = value.match(/<p><strong>Consigne :<\/strong>(.*?)<\/p>/);
 
-    updated[index].objectif = objectifMatch ? objectifMatch[1].trim() : '';
-    updated[index].consigne = consigneMatch ? consigneMatch[1].trim() : '';
-    updated[index].detailed = value; // ✅ Permet de garder le texte complet
+    updated[index].objectif = objectifMatch ? objectifMatch[1].trim() : updated[index].objectif;
+    updated[index].consigne = consigneMatch ? consigneMatch[1].trim() : updated[index].consigne;
+  }
 
-    setSeances(updated);
-  };
+  updated[index].detailed = value;
+  setSeances(updated);
+};
+
 
   // ✅ Sauvegarder toutes les séances
   const handleSaveAll = async () => {
