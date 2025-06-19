@@ -54,6 +54,8 @@ export default function Seances() {
   // ✅ Sauvegarder toutes les séances
   const handleSaveAll = async () => {
     try {
+      console.log("Séances à sauvegarder :", seances);
+
       await Promise.all(
         seances.map(seance =>
           fetch(`/api/seances/${seance.id}`, {

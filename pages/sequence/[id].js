@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Header from '@/components/Header';
 
 export default function Sequence() {
@@ -45,19 +46,23 @@ export default function Sequence() {
           <p>Aucune séance trouvée pour cette séquence.</p>
         ) : (
           sequence.seances.map((seance) => (
-            <div
-              key={seance.id}
-              style={{
-                marginBottom: '2rem',
-                padding: '1rem',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                background: '#f9f9f9',
-              }}
-            >
-              <h2>{seance.title} — {seance.subtitle}</h2>
-              <div dangerouslySetInnerHTML={{ __html: seance.detailed || '<p>Pas de contenu détaillé.</p>' }} />
-            </div>
+            <Link href={`/seance/${seance.id}`} key={seance.id} passHref>
+              <div
+                style={{
+                  marginBottom: '2rem',
+                  padding: '1rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  background: '#f9f9f9',
+                  cursor: 'pointer',
+                }}
+              >
+                <h2>{seance.title} — {seance.subtitle}</h2>
+                <p style={{ fontStyle: 'italic', color: '#666' }}>
+                  Cliquer pour voir la séance détaillée
+                </p>
+              </div>
+            </Link>
           ))
         )}
       </div>

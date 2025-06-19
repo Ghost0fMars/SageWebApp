@@ -3,12 +3,31 @@ import prisma from '@/lib/prisma';
 export default async function handler(req, res) {
   const { id } = req.query;
 
+  // ✅ GET : Récupérer une séance unique pour afficher son contenu détaillé
+  if (req.method === 'GET') {
+    try {
+      const seance = await prisma.seance.findUnique({
+        where: { id },
+      });
+      if (!seance) {
+        return res.status(404).json({ error: "Séance introuvable" });
+      }
+      return res.status(200).json(seance);
+    } catch (error) {
+      console.error('Erreur GET:', error);
+      return res.status(500).json({ error: "Erreur lors de la récupération de la séance" });
+    }
+  }
+
   if (req.method === 'PATCH') {
-    const { position, objectif } = req.body; // ✅ on accepte les deux
+    const { position, objectif, subtitle, consigne, detailed } = req.body;
 
     const data = {};
     if (position !== undefined) data.position = position;
     if (objectif !== undefined) data.objectif = objectif;
+    if (subtitle !== undefined) data.subtitle = subtitle;
+    if (consigne !== undefined) data.consigne = consigne;
+    if (detailed !== undefined) data.detailed = detailed;
 
     try {
       const updated = await prisma.seance.update({
@@ -34,6 +53,6 @@ export default async function handler(req, res) {
     }
   }
 
-  res.setHeader('Allow', ['PATCH', 'DELETE']);
+  res.setHeader('Allow', ['GET', 'PATCH', 'DELETE']);
   res.status(405).end(`Méthode ${req.method} non autorisée`);
 }

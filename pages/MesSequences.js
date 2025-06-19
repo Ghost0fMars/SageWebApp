@@ -30,7 +30,6 @@ export default function MesSequences() {
   };
 
   const handleExport = (id) => {
-    // ✅ Plus de POST : on redirige vers HomePage avec un cache-buster pour forcer le refresh
     router.push(`/HomePage?refresh=${Date.now()}`);
   };
 
@@ -83,7 +82,7 @@ export default function MesSequences() {
             {sequences.map((seq) => (
               <div
                 key={seq.id}
-                className="flex items-start justify-between p-2 rounded-md bg-gray-100"
+                className="flex items-start justify-between p-4 rounded-md bg-gray-50"
               >
                 <Link
                   href={`/sequence/${seq.id}`}
@@ -104,8 +103,8 @@ export default function MesSequences() {
                       e.preventDefault();
                       handleDelete(seq.id);
                     }}
-                    className="bg-red-500 text-white rounded-full p-2 w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors duration-200"
-                    title="Supprimer cette séquence"
+                    className="tile-button"
+                    title="Supprimer"
                   >
                     ×
                   </button>
@@ -116,10 +115,34 @@ export default function MesSequences() {
                       e.preventDefault();
                       handleExport(seq.id);
                     }}
-                    className="bg-yellow-400 text-black rounded-full p-2 w-8 h-8 flex items-center justify-center hover:bg-yellow-500 transition-colors duration-200"
-                    title="Exporter vers HomePage"
+                    className="tile-button"
+                    title="Exporter"
                   >
                     +
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleExport(seq.id);
+                    }}
+                    className="tile-button"
+                    title="Modifier"
+                  >
+                    /
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleExport(seq.id);
+                    }}
+                    className="tile-button"
+                    title="Archiver"
+                  >
+                    –
                   </button>
                 </div>
               </div>

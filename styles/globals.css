@@ -251,3 +251,23 @@ html, body {
 .ql-toolbar {
   border: none !important;
 }
+
+/* Boutons fixes et minimalistes à droite des tuiles */
+.tile-button {
+  box-sizing: border-box;
+  width: 1.25rem;    /* équivaut à w-8 */
+  height: 1.25rem;   /* équivaut à h-8 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e5e5; /* gris neutre */
+  color: #000000;
+  border: none;
+  border-radius: 0.375rem; /* arrondi léger */
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.tile-button:hover {
+  background: #d4d4d4; /* optionnel : léger hover */
+}
