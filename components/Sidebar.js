@@ -3,21 +3,10 @@ import { Trash2 } from "lucide-react";
 import DraggablePortal from "./DraggablePortal";
 import DragTile from "./DragTile";
 
-export default function Sidebar({ seances, refreshSeances }) {
-
-  const handleDeleteSidebarTiles = async () => {
-    const confirmDelete = window.confirm("Supprimer toutes les tuiles de la sidebar ?");
-    if (!confirmDelete) return;
-
-    await Promise.all(
-      seances.map(tile =>
-        fetch(`/api/seances/${tile.id}`, {
-          method: 'DELETE'
-        })
-      )
-    );
-
-    refreshSeances();
+export default function Sidebar({ seances, onClearSidebar }) {
+  const handleDeleteSidebarTiles = () => {
+    if (!confirm("Supprimer toutes les tuiles de la sidebar ?")) return;
+    if (onClearSidebar) onClearSidebar(); // ✅ action remontée au parent
   };
 
   return (
@@ -31,7 +20,7 @@ export default function Sidebar({ seances, refreshSeances }) {
       </a>
 
       <Droppable droppableId="sidebar">
-        {(provided, snapshot) => (
+        {(provided) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
@@ -39,8 +28,8 @@ export default function Sidebar({ seances, refreshSeances }) {
           >
             {seances.map((tile, index) => (
               <Draggable
-                key={tile.id || tile.seanceId || index}
-                draggableId={(tile.id || tile.seanceId || index).toString()}
+                key={tile.id || index}
+                draggableId={(tile.id || index).toString()}
                 index={index}
               >
                 {(provided, snapshot) => {
@@ -64,7 +53,8 @@ export default function Sidebar({ seances, refreshSeances }) {
 
       <button
         onClick={handleDeleteSidebarTiles}
-        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 mt-6 rounded flex items-center justify-center gap-2">
+        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 mt-6 rounded flex items-center justify-center gap-2"
+      >
         <Trash2 size={16} /> Supprimer les tuiles
       </button>
     </aside>

@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useSidebar } from "@/lib/SidebarContext"; // ✅ ajout du hook
 
 export default function MesSequences() {
   const { data: session, status } = useSession();
   const [sequences, setSequences] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const { setSeances } = useSidebar(); // ✅ utilise le contexte Sidebar
 
   const handleDelete = async (id) => {
     if (!confirm("Confirmer la suppression ?")) return;
@@ -29,8 +32,18 @@ export default function MesSequences() {
     }
   };
 
-  const handleExport = (id) => {
-    router.push(`/HomePage?refresh=${Date.now()}`);
+  // ✅ handleExport corrigé : fetch les séances, push dans SidebarContext
+  const handleExport = async (id) => {
+    try {
+      const res = await fetch(`/api/sequences/${id}`);
+      const data = await res.json();
+      const seances = data.seances || [];
+      setSeances(seances); // ✅ injecte dans Sidebar
+      router.push("/HomePage"); // ✅ redirige vers ta page emploi du temps
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de l'export");
+    }
   };
 
   useEffect(() => {
@@ -116,7 +129,7 @@ export default function MesSequences() {
                       handleExport(seq.id);
                     }}
                     className="tile-button"
-                    title="Exporter"
+                    title="Exporter vers Sidebar"
                   >
                     +
                   </button>
@@ -128,7 +141,7 @@ export default function MesSequences() {
                       handleExport(seq.id);
                     }}
                     className="tile-button"
-                    title="Modifier"
+                    title="Exporter vers Sidebar"
                   >
                     /
                   </button>
@@ -137,7 +150,7 @@ export default function MesSequences() {
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      handleExport(seq.id);
+                      alert("Archiver : action à implémenter");
                     }}
                     className="tile-button"
                     title="Archiver"

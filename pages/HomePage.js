@@ -9,14 +9,14 @@ import { DragDropContext } from "react-beautiful-dnd";
 export default function HomePage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [cases, setCases] = useState({});
+  const [cases, setCases] = useState({
+    sidebar: [],
+  });
 
   const refreshSeances = async () => {
     if (!session?.user?.id) return;
 
     const { sequenceId } = router.query;
-
-    // ✅ Construire la query proprement
     const query = sequenceId ? `?sequenceId=${sequenceId}` : "";
     const res = await fetch(`/api/seances${query}`);
     const data = await res.json();
@@ -26,10 +26,10 @@ export default function HomePage() {
       return;
     }
 
-    const grouped = data.reduce((acc, tile) => {
-      const key = tile.position || "sidebar";
+    const grouped = data.reduce((acc, seance) => {
+      const key = seance.position || "sidebar";
       if (!acc[key]) acc[key] = [];
-      acc[key].push(tile);
+      acc[key].push(seance);
       return acc;
     }, {});
     setCases(grouped);
@@ -42,7 +42,7 @@ export default function HomePage() {
     window.addEventListener("refresh-seances", handler);
 
     return () => window.removeEventListener("refresh-seances", handler);
-  }, [session, router.query]); // ✅ Rafraîchit si query change
+  }, [session, router.query]);
 
   const handleDrag = (result) => {
     const { source, destination } = result;
@@ -53,16 +53,23 @@ export default function HomePage() {
 
     if (sourceId === destId && source.index === destination.index) return;
 
+    let movedItem;
+
     setCases((prev) => {
       const sourceList = Array.from(prev[sourceId] || []);
       const destList = Array.from(prev[destId] || []);
 
-      const [movedItem] = sourceList.splice(source.index, 1);
+      [movedItem] = sourceList.splice(source.index, 1);
+      destList.splice(destination.index, 0, movedItem);
 
-      if (!destList.find((item) => item.id === movedItem.id)) {
-        destList.splice(destination.index, 0, movedItem);
-      }
+      return {
+        ...prev,
+        [sourceId]: sourceList,
+        [destId]: destList,
+      };
+    });
 
+    if (movedItem) {
       fetch(`/api/seances/${movedItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -71,17 +78,14 @@ export default function HomePage() {
         .then((res) => res.json())
         .then((updated) => {
           console.log("✅ Position MAJ :", updated);
+          refreshSeances();
         })
         .catch((err) => {
           console.error("❌ Erreur PATCH :", err);
         });
-
-      return {
-        ...prev,
-        [sourceId]: sourceList,
-        [destId]: destList,
-      };
-    });
+    } else {
+      console.error("❌ movedItem introuvable");
+    }
   };
 
   return (
@@ -90,12 +94,16 @@ export default function HomePage() {
 
       <DragDropContext onDragEnd={handleDrag}>
         <main className="main-content flex gap-8 px-6 mt-8 relative">
-          {/* Sidebar */}
           <div className="w-[240px] relative z-[50]">
-            <Sidebar seances={cases.sidebar || []} refreshSeances={refreshSeances} />
+            <Sidebar 
+              seances={cases["sidebar"] || []}
+              onClearSidebar={() => {
+                setCases((prev) => ({ ...prev, sidebar: [] }));
+              }}
+            />
+
           </div>
 
-          {/* Emploi du temps */}
           <div className="flex-1 z-0 relative">
             <Schedule cases={cases} />
           </div>

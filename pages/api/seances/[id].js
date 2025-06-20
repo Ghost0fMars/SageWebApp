@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 export default async function handler(req, res) {
   const { id } = req.query;
 
-  // ✅ GET : Récupérer une séance unique pour afficher son contenu détaillé
   if (req.method === 'GET') {
     try {
       const seance = await prisma.seance.findUnique({
@@ -20,7 +19,17 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PATCH') {
-    const { position, objectif, subtitle, consigne, detailed } = req.body;
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body); // ✅ blindé
+      } catch (err) {
+        console.error('Erreur de parsing JSON:', err);
+        return res.status(400).json({ error: "Body invalide" });
+      }
+    }
+
+    const { position, objectif, subtitle, consigne, detailed } = body;
 
     const data = {};
     if (position !== undefined) data.position = position;
@@ -28,6 +37,8 @@ export default async function handler(req, res) {
     if (subtitle !== undefined) data.subtitle = subtitle;
     if (consigne !== undefined) data.consigne = consigne;
     if (detailed !== undefined) data.detailed = detailed;
+
+    console.log("✅ PATCH reçu : ", data);
 
     try {
       const updated = await prisma.seance.update({

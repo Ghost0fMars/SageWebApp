@@ -20,6 +20,7 @@ export default async function handler(req, res) {
         objectif,
         consigne,
         sequenceId,
+        position: "sidebar", // ✅ Par défaut dans la sidebar
       },
     });
 
@@ -29,34 +30,20 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const { sequenceId } = req.query;
 
-    if (!sequenceId) {
-      return res.status(400).json({ message: "Paramètre sequenceId requis." });
-    }
+    // ✅ Plus d'erreur 400 : si pas de sequenceId, on prend TOUTES les séances
+    const where = sequenceId ? { sequenceId } : {};
 
     const seances = await prisma.seance.findMany({
-      where: { sequenceId },
+      where,
       orderBy: { title: "asc" },
     });
 
     return res.status(200).json(seances);
   }
 
-  if (req.method === "PATCH") {
-  const { id, subtitle, objectif, consigne, detailed } = req.body;
+  // ✅ PATCH ne devrait PAS être ici : il est déjà dans [id].js → on le retire pour éviter conflit.
+  // Si tu veux PATCH plusieurs d'un coup → on en parle.
 
-  if (!id) {
-    return res.status(400).json({ message: "ID de la séance manquant." });
-  }
-
-  const updated = await prisma.seance.update({
-    where: { id },
-    data: { subtitle, objectif, consigne, detailed },
-  });
-
-  return res.status(200).json(updated);
-}
-
-
-  res.setHeader('Allow', ['GET', 'POST', 'PATCH']);
+  res.setHeader('Allow', ['GET', 'POST']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }

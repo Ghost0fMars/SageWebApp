@@ -12,23 +12,23 @@ export default function Schedule({ cases }) {
 
   return (
     <div className="emploi-du-temps w-full">
-      <table className="emploi-table w-full bg-white">
+      <table className="emploi-table w-full bg-white border-collapse">
         <thead>
           <tr>
-            <th className="heure"></th>
+            <th className="heure border px-2 py-1"></th>
             {jours.map((jour) => (
-              <th key={jour}>{jour}</th>
+              <th key={jour} className="border px-2 py-1">{jour}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {heures.map((heure) => (
             <tr key={heure}>
-              <td className="heure">{heure}</td>
+              <td className="heure border px-2 py-1 font-bold">{heure}</td>
               {jours.map((jour) => {
                 const droppableId = `${jour}-${heure}`;
                 return (
-                  <td key={droppableId} className="h-20 align-top">
+                  <td key={droppableId} className="h-20 align-top border px-2 py-1">
                     <Droppable droppableId={droppableId}>
                       {(provided) => (
                         <div
@@ -36,22 +36,28 @@ export default function Schedule({ cases }) {
                           {...provided.droppableProps}
                           className="h-full"
                         >
-                          {(cases[droppableId] || []).map((seance, index) => (
-                            <Draggable key={seance.id} draggableId={seance.id} index={index}>
-                              {(provided, snapshot) => {
-                                const tuile = (
-                                  <DragTile
-                                    seance={seance}
-                                    provided={provided}
-                                    snapshot={snapshot}
-                                  />
-                                );
-                                return snapshot.isDragging ? (
-                                  <DraggablePortal>{tuile}</DraggablePortal>
-                                ) : tuile;
-                              }}
-                            </Draggable>
-                          ))}
+                          {(cases[droppableId] || [])
+                            .filter(Boolean) // ✅ PROTECTION : ignorer undefined/null
+                            .map((seance, index) => (
+                              <Draggable
+                                key={seance.id}
+                                draggableId={seance.id.toString()}
+                                index={index}
+                              >
+                                {(provided, snapshot) => {
+                                  const tuile = (
+                                    <DragTile
+                                      seance={seance}
+                                      provided={provided}
+                                      snapshot={snapshot}
+                                    />
+                                  );
+                                  return snapshot.isDragging ? (
+                                    <DraggablePortal>{tuile}</DraggablePortal>
+                                  ) : tuile;
+                                }}
+                              </Draggable>
+                            ))}
                           {provided.placeholder}
                         </div>
                       )}

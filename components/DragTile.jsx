@@ -8,8 +8,8 @@ export default function DragTile({ seance, provided, snapshot }) {
       {...provided.dragHandleProps}
       className="tuile font-medium"
       style={{
-        backgroundColor: seance.couleur || "#fff8e1",
-        border: "1px solid #f4d35e",
+        backgroundColor: seance.couleur || "#FFFBEA", // cohérent avec ton thème
+        border: "1px solid #e9e0c9",
         borderRadius: "0.75rem",
         padding: "0.75rem",
         marginBottom: "0.5rem",
@@ -18,13 +18,17 @@ export default function DragTile({ seance, provided, snapshot }) {
         ...provided.draggableProps.style,
       }}
     >
-      <strong>{seance.titre || "Sans titre"}</strong>
-      <div style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>
-        Objectif : {seance.objectif || "—"}
-      </div>
-      <div style={{ fontSize: "0.8rem", marginTop: "0.1rem" }}>
-        Séance ID : {seance.seanceId || "—"}
-      </div>
+      <strong>{seance.title || seance.titre || "Sans titre"}</strong>
+      {seance.subtitle && (
+        <div style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>
+          {seance.subtitle}
+        </div>
+      )}
+      {seance.objectif && (
+        <div style={{ fontSize: "0.8rem", marginTop: "0.25rem" }}>
+          Objectif : {seance.objectif}
+        </div>
+      )}
     </div>
   );
 }
