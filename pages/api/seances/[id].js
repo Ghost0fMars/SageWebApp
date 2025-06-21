@@ -22,17 +22,18 @@ export default async function handler(req, res) {
     let body = req.body;
     if (typeof body === 'string') {
       try {
-        body = JSON.parse(body); // ✅ blindé
+        body = JSON.parse(body); // ✅ blindage pour Next.js bodyParser
       } catch (err) {
         console.error('Erreur de parsing JSON:', err);
         return res.status(400).json({ error: "Body invalide" });
       }
     }
 
-    const { position, objectif, subtitle, consigne, detailed } = body;
+    const { position, date, objectif, subtitle, consigne, detailed } = body;
 
     const data = {};
     if (position !== undefined) data.position = position;
+    if (date !== undefined) data.date = new Date(date); // ✅ Ajout : convertit en Date JS
     if (objectif !== undefined) data.objectif = objectif;
     if (subtitle !== undefined) data.subtitle = subtitle;
     if (consigne !== undefined) data.consigne = consigne;

@@ -34,7 +34,8 @@ model Seance {
   objectif   String
   consigne   String?
   detailed   String?
-  position   String?   // ✅ Slot ou "sidebar"
+  position   String?
+  date       DateTime?  
   sequenceId String
   sequence   Sequence @relation(fields: [sequenceId], references: [id])
 }

@@ -5,13 +5,20 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Schedule from "@/components/Schedule";
 import { DragDropContext } from "react-beautiful-dnd";
+import DatePicker, { registerLocale } from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import fr from "date-fns/locale/fr";
+
+registerLocale("fr", fr);
 
 export default function HomePage() {
   const { data: session } = useSession();
   const router = useRouter();
+
   const [cases, setCases] = useState({
     sidebar: [],
   });
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const refreshSeances = async () => {
     if (!session?.user?.id) return;
@@ -27,6 +34,11 @@ export default function HomePage() {
     }
 
     const grouped = data.reduce((acc, seance) => {
+      if (seance.date) {
+        const seanceDate = new Date(seance.date).toDateString();
+        if (seanceDate !== selectedDate.toDateString()) return acc;
+      }
+
       const key = seance.position || "sidebar";
       if (!acc[key]) acc[key] = [];
       acc[key].push(seance);
@@ -42,7 +54,7 @@ export default function HomePage() {
     window.addEventListener("refresh-seances", handler);
 
     return () => window.removeEventListener("refresh-seances", handler);
-  }, [session, router.query]);
+  }, [session, router.query, selectedDate]);
 
   const handleDrag = (result) => {
     const { source, destination } = result;
@@ -73,11 +85,14 @@ export default function HomePage() {
       fetch(`/api/seances/${movedItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ position: destId }),
+        body: JSON.stringify({
+          position: destId,
+          date: selectedDate,
+        }),
       })
         .then((res) => res.json())
         .then((updated) => {
-          console.log("✅ Position MAJ :", updated);
+          console.log("✅ Position et date MAJ :", updated);
           refreshSeances();
         })
         .catch((err) => {
@@ -93,19 +108,30 @@ export default function HomePage() {
       <Header />
 
       <DragDropContext onDragEnd={handleDrag}>
-        <main className="main-content flex gap-8 px-6 mt-8 relative">
-          <div className="w-[240px] relative z-[50]">
-            <Sidebar 
+        <main className="main-content flex gap-8 px-6 mt-4 relative">
+          <div className="w-[240px] relative z-[50] flex flex-col items-center gap-4">
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              dateFormat="dd/MM/yyyy"
+              locale="fr"
+              calendarStartDay={1}
+              className="border px-3 py-2 rounded text-center"
+              popperPlacement="bottom"
+              popperClassName="!z-[9999]"
+              placeholderText="Choisir une date"
+            />
+
+            <Sidebar
               seances={cases["sidebar"] || []}
               onClearSidebar={() => {
                 setCases((prev) => ({ ...prev, sidebar: [] }));
               }}
             />
-
           </div>
 
           <div className="flex-1 z-0 relative">
-            <Schedule cases={cases} />
+            <Schedule cases={cases} selectedDate={selectedDate} />
           </div>
         </main>
       </DragDropContext>

@@ -10,14 +10,17 @@ export default function Sidebar({ seances, onClearSidebar }) {
   };
 
   return (
-    <aside className="bibliotheque-tuiles">
-      <div className="flex justify-center mb-4">
-        <img src="/logo-sage.png" alt="Logo" width={60} />
-      </div>
+    <aside className="bibliotheque-tuiles flex flex-col items-center gap-4">
+  <div className="flex justify-center mb-4">
+    <img src="/logo-sage.png" alt="Logo" width={60} />
+  </div>
 
-      <a href="/formulaire" className="button no-underline text-center font-semibold">
-        + Créer une séquence
-      </a>
+  <a
+    href="/formulaire"
+    className="button no-underline text-center font-semibold"
+  >
+    + Créer une séquence
+  </a>
 
       <Droppable droppableId="sidebar">
         {(provided) => (
