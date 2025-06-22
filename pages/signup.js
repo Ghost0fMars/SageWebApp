@@ -18,8 +18,8 @@ export default function SignUp() {
     setMessage('');
 
     try {
-      // ✅ 1️⃣ Appel API pour créer l'utilisateur
-      const res = await fetch('/api/auth/signup', {
+      // 1️⃣ Création de l'utilisateur via l'API
+      const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -27,26 +27,31 @@ export default function SignUp() {
 
       const data = await res.json();
       if (!res.ok) {
+        console.error("Signup error:", data.error);
         setMessage(data.error || 'Une erreur est survenue.');
         return;
       }
 
-      // ✅ 2️⃣ Connexion automatique après inscription
+      // 2️⃣ Connexion automatique après inscription
       const signInRes = await signIn('credentials', {
         redirect: false,
         email: formData.email,
         password: formData.password,
       });
 
-      if (signInRes.ok) {
+      console.log("signInRes:", signInRes);
+
+      if (signInRes && signInRes.ok) {
         setMessage(`Bienvenue, ${formData.name || formData.email} !`);
         setTimeout(() => {
           router.push('/');
         }, 1000);
       } else {
+        console.warn("Connexion auto échouée:", signInRes);
         setMessage("Compte créé, mais échec de connexion automatique.");
       }
     } catch (err) {
+      console.error("Exception lors du signup:", err);
       setMessage("Erreur de connexion au serveur.");
     }
   };
