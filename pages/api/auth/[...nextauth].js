@@ -1,11 +1,9 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -14,27 +12,26 @@ export const authOptions = {
         password: { label: "Mot de passe", type: "password" },
       },
       async authorize(credentials) {
-        // 1️⃣ Vérifie que l'utilisateur existe
+        // Vérifie l'utilisateur
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
         if (!user || !user.hashedPassword) {
-          return null; // ⛔ Pas d'utilisateur ou pas de mot de passe hashé
+          throw new Error("Email ou mot de passe invalide");
         }
 
-        // 2️⃣ Vérifie que le mot de passe est correct
         const isValid = await bcrypt.compare(
           credentials.password,
           user.hashedPassword
         );
 
         if (!isValid) {
-          return null; // ⛔ Mot de passe incorrect
+          throw new Error("Email ou mot de passe invalide");
         }
 
-        // 3️⃣ Retourne le user si tout est bon
-        return user;
+        // Retourne un objet minimal pour la session JWT
+        return { id: user.id, email: user.email, name: user.name };
       },
     }),
   ],
@@ -43,11 +40,16 @@ export const authOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      // ✅ Ajoute l'ID utilisateur dans la session
       if (token?.sub) {
         session.user.id = token.sub;
       }
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
