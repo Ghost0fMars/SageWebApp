@@ -9,6 +9,15 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import fr from "date-fns/locale/fr";
 
+function getMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 registerLocale("fr", fr);
 
 export default function HomePage() {
@@ -34,9 +43,10 @@ export default function HomePage() {
     }
 
     const grouped = data.reduce((acc, seance) => {
-      if (seance.date) {
-        const seanceDate = new Date(seance.date).toDateString();
-        if (seanceDate !== selectedDate.toDateString()) return acc;
+      if (seance.semaine) {
+        const seanceSemaine = new Date(seance.semaine).toDateString();
+        const selectedSemaine = getMonday(selectedDate).toDateString();
+        if (seanceSemaine !== selectedSemaine) return acc;
       }
 
       const key = seance.position || "sidebar";
@@ -82,17 +92,27 @@ export default function HomePage() {
     });
 
     if (movedItem) {
+      const payload = {
+        position: destId,
+      };
+
+      // ✅ Correction : si destination = sidebar ➜ semaine = null pour effacer en DB
+      if (destId === "sidebar") {
+        payload.semaine = null;
+      } else {
+        payload.semaine = getMonday(selectedDate);
+      }
+
+      console.log("📦 PATCH envoyé :", payload);
+
       fetch(`/api/seances/${movedItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          position: destId,
-          date: selectedDate,
-        }),
+        body: JSON.stringify(payload),
       })
         .then((res) => res.json())
         .then((updated) => {
-          console.log("✅ Position et date MAJ :", updated);
+          console.log("✅ Position et Semaine MAJ :", updated);
           refreshSeances();
         })
         .catch((err) => {

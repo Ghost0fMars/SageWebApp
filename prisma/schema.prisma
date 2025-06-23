@@ -35,7 +35,7 @@ model Seance {
   consigne   String?
   detailed   String?
   position   String?
-  date       DateTime?  
+  semaine    DateTime?
   sequenceId String
   sequence   Sequence @relation(fields: [sequenceId], references: [id])
 }

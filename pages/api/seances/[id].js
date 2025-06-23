@@ -29,11 +29,19 @@ export default async function handler(req, res) {
       }
     }
 
-    const { position, date, objectif, subtitle, consigne, detailed } = body;
+    const { position, semaine, objectif, subtitle, consigne, detailed } = body;
 
     const data = {};
     if (position !== undefined) data.position = position;
-    if (date !== undefined) data.date = new Date(date); // ✅ Ajout : convertit en Date JS
+
+    if (semaine !== undefined) {
+      if (semaine === null) {
+        data.semaine = null; // ✅ on réinitialise proprement
+      } else {
+        data.semaine = new Date(semaine); // ✅ convertit en Date
+      }
+    }
+
     if (objectif !== undefined) data.objectif = objectif;
     if (subtitle !== undefined) data.subtitle = subtitle;
     if (consigne !== undefined) data.consigne = consigne;
