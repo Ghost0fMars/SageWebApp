@@ -186,8 +186,8 @@ export default function Classe() {
         </div>
 
         {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="tile">
+        <div className="stats-container">
+          <div className="tile-stat">
             <div className="flex items-center justify-center gap-2">
               <FileText size={20} className="text-blue-600" />
               <div>
@@ -196,7 +196,7 @@ export default function Classe() {
               </div>
             </div>
           </div>
-          <div className="tile">
+          <div className="tile-stat">
             <div className="flex items-center justify-center gap-2">
               <AlertCircle size={20} className="text-orange-600" />
               <div>
@@ -205,7 +205,7 @@ export default function Classe() {
               </div>
             </div>
           </div>
-          <div className="tile">
+          <div className="tile-stat">
             <div className="flex items-center justify-center gap-2">
               <Award size={20} className="text-green-600" />
               <div>
@@ -217,7 +217,7 @@ export default function Classe() {
         </div>
 
         {/* Onglets */}
-        <div className="flex gap-2 mb-6 border-b">
+        <div className="onglet-classe">
           {[
             { id: 'effectifs', label: 'Effectifs', icon: User },
             { id: 'documents', label: 'Documents', icon: FileText },
@@ -227,7 +227,7 @@ export default function Classe() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+              className= {`bouton-onglet ${
                 activeTab === tab.id 
                   ? 'border-yellow-400 text-black font-semibold' 
                   : 'border-transparent text-gray-600 hover:text-black'
@@ -288,7 +288,7 @@ export default function Classe() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {Object.entries(student.documents).map(([doc, status]) => (
-                    <div key={doc} className="flex items-center justify-between p-2 border rounded">
+                    <div key={doc} className="flex items-center justify-between p-2 rounded">
                       <span className="capitalize">{doc === 'droitImage' ? 'Droit à l\'image' : doc}</span>
                       <button
                         onClick={() => toggleDocument(student.id, doc)}
@@ -311,7 +311,7 @@ export default function Classe() {
                 <h3 className="font-bold mb-3">{student.prenom} {student.nom}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {Object.entries(student.evaluations).map(([matiere, data]) => (
-                    <div key={matiere} className="border rounded p-3">
+                    <div key={matiere} className="rounded p-3">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-semibold capitalize">{matiere}</span>
                         <div className="flex items-center gap-1">

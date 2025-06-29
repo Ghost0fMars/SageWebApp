@@ -84,7 +84,7 @@ h1 {
   border: none !important;
 }
 
-/* Bannières */
+/* Bannière */
 .banner-container {
   position: relative;
   width: 100%;
@@ -160,7 +160,7 @@ h1 {
 .emploi-table td.heure {
   background-color: #f0f0f0;
   font-weight: bold;
-  width: 70px;
+  width: 40px;
 }
 
 .emploi-table th:first-child {
@@ -281,6 +281,114 @@ html, body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+
+/* Onglets classe */
+
+.onglet-classe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background-color: rgba(196, 196, 196, 0.36); /* même couleur, plus lisible */
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.onglet-classe:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.bouton-onglet {
+  background-color: rgba(255, 255, 255, 0.85);
+  color: rgba(66, 66, 66, 0.85);
+  padding: 0.2rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.2s ease;
+}
+
+.bouton-onglet:hover {
+  background-color: #f9f9f9;
+  color: #000000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.bouton-onglet:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0); /* halo focus élégant */
+}
+
+.bouton-onglet.active {
+  background-color: #fef9e7; /* fond jaune pâle */
+  color: #000;
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 #e0c95a;
+}
+
+
+/* Conteneur de tuiles élèves */
+.tuiles-eleves {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.5rem;
+}
+
+/* Tuile individuelle */
+.tile-student {
+  background-color: #f0f9ff;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  font-size: 0.875rem;
+  line-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  min-height: 140px;
+}
+
+.tile-student:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem; /* espace entre les tuiles */
+  flex-wrap: nowrap; /* ou wrap si tu veux que ça aille à la ligne si trop long */
+  margin-top: 2rem; /* espace en haut */
+  margin-bottom: 2rem; /* espace en bas */
+}
+
+.tile-stat {
+  background-color: #f2ebc2;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
+.tile-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
 /* ------------------------------
    Améliorations Responsive Mobile
    ------------------------------ */
@@ -347,30 +455,3 @@ html, body {
   }
 }
 
-/* Conteneur de tuiles élèves */
-.tuiles-eleves {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-/* Tuile individuelle */
-.tile-student {
-  background-color: #f0f9ff;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  text-align: left;
-  min-height: 140px;
-}
-
-.tile-student:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
