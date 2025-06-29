@@ -346,3 +346,31 @@ html, body {
     font-size: 0.8rem;
   }
 }
+
+/* Conteneur de tuiles élèves */
+.tuiles-eleves {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* Tuile individuelle */
+.tile-student {
+  background-color: #f0f9ff;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  min-height: 140px;
+}
+
+.tile-student:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

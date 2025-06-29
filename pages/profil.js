@@ -37,14 +37,13 @@ export default function Profile() {
         {/* Bandeau titre */}
         <div className="bg-blue-600 text-white rounded-t-lg px-6 py-6 mb-8">
           <h1 className="text-3xl font-bold">Mon Profil Enseignant</h1>
-          <p className="text-sm">Gérez vos informations personnelles et professionnelles</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-10">
           {/* Photo + bouton */}
           <div className="flex flex-col items-center">
             <Image
-              src="/logo_sage_chouette.png"
+              src="/Logo.png"
               alt="Photo de profil"
               width={120}
               height={120}
@@ -57,14 +56,14 @@ export default function Profile() {
               Changer la photo
             </button>
             <p className="text-gray-500 text-sm mt-2">
-              JPG ou PNG. Max 2 Mo. Recommandé : 400×400px
+              
             </p>
           </div>
 
           {/* Infos personnelles */}
           <section>
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <span className="text-purple-600">👤</span> Informations personnelles
+              <span className="text-purple-600"></span> Informations personnelles
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -113,7 +112,7 @@ export default function Profile() {
           {/* Infos professionnelles */}
           <section>
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <span className="text-purple-600">📋</span> Informations professionnelles
+              <span className="text-purple-600"></span> Informations professionnelles
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -156,28 +155,11 @@ export default function Profile() {
                 rows="4"
                 className="w-full border rounded px-4 py-2"
               ></textarea>
-              <p className="text-sm text-gray-500 mt-1">
-                Décrivez brièvement votre parcours, vos spécialités et votre vision pédagogique.
-              </p>
+              
             </div>
           </section>
 
-          {/* Préférences */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <span className="text-purple-600">🔒</span> Préférences de confidentialité
-            </h2>
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                name="isVisible"
-                checked={formData.isVisible}
-                onChange={handleChange}
-                className="w-4 h-4"
-              />
-              <span>Rendre mon profil visible aux autres enseignants</span>
-            </label>
-          </section>
+          
 
           <button
             type="submit"
