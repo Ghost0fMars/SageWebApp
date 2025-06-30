@@ -39,3 +39,18 @@ model Seance {
   sequenceId String
   sequence   Sequence @relation(fields: [sequenceId], references: [id])
 }
+
+model Eleve {
+  id        String   @id @default(uuid())
+  userId    String
+  prenom    String
+  nom       String
+  dateNaissance String?
+  parentNom String?
+  parentTel String?
+  parentEmail String?
+  documents Json
+  besoinsParticuliers Json
+  notes     String?
+  evaluations Json
+}

@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User, Phone, FileText, BookOpen, AlertCircle, Plus, Edit2, Eye, Trash2,
   CheckCircle, XCircle, Award, TrendingUp, TrendingDown, Minus
 } from 'lucide-react';
 import Header from '@/components/Header';
+import { useSession } from "next-auth/react";
+
 
 export default function Classe() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState('effectifs');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [students, setStudents] = useState([
-    
-  ]);
-
+  const [students, setStudents] = useState([]);  
   const [newStudent, setNewStudent] = useState({
     prenom: '', nom: '', dateNaissance: '', parentNom: '', parentTel: '', parentEmail: '',
     documents: { assurance: false, droitImage: false, cantine: false },
@@ -25,17 +25,31 @@ export default function Classe() {
     }
   });
 
-  const handleAddStudent = () => {
-    if (newStudent.prenom && newStudent.nom) {
-      setStudents([...students, {
+ useEffect(() => {
+    if (!session?.user?.id) return;
+    fetch(`/api/eleves?userId=${session.user.id}`)
+      .then(res => res.json())
+      .then(data => setStudents(data))
+      .catch(() => setStudents([]));
+  }, [session]);
+
+   const handleAddStudent = async () => {
+    if (newStudent.prenom && newStudent.nom && session?.user?.id) {
+      const toSave = {
         ...newStudent,
-        id: Date.now(),
+        userId: session.user.id,
         evaluations: {
           francais: { note: newStudent.evaluations.francais.note || 0, progression: 'stable' },
           mathematiques: { note: newStudent.evaluations.mathematiques.note || 0, progression: 'stable' },
           sciences: { note: newStudent.evaluations.sciences.note || 0, progression: 'stable' }
         }
-      }]);
+      };
+      const res = await fetch('/api/eleves', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(toSave)
+      });
+      const saved = await res.json();
       setNewStudent({
         prenom: '', nom: '', dateNaissance: '', parentNom: '', parentTel: '', parentEmail: '',
         documents: { assurance: false, droitImage: false, cantine: false },
@@ -50,11 +64,10 @@ export default function Classe() {
     }
   };
 
-  const handleDeleteStudent = (id) => {
+  const handleDeleteStudent = async (id) => {
+    await fetch(`/api/eleves/${id}`, { method: 'DELETE' });
     setStudents(students.filter(s => s.id !== id));
-    if (selectedStudent && selectedStudent.id === id) {
-      setSelectedStudent(null);
-    }
+    if (selectedStudent && selectedStudent.id === id) setSelectedStudent(null);
   };
 
   const updateSelectedStudent = (field, value) => {
@@ -231,6 +244,7 @@ export default function Classe() {
 }}
 
       >
+          {/* Tuile élève */}
 
       <div className="flex justify-between items-start">
         <div className="flex-1">
