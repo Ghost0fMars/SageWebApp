@@ -3,47 +3,15 @@ import {
   User, Phone, FileText, BookOpen, AlertCircle, Plus, Edit2, Eye, Trash2,
   CheckCircle, XCircle, Award, TrendingUp, TrendingDown, Minus
 } from 'lucide-react';
-import Header from '@/components/Header'; // ⚠️ modifie ce chemin si nécessaire
+import Header from '@/components/Header';
 
 export default function Classe() {
   const [activeTab, setActiveTab] = useState('effectifs');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [students, setStudents] = useState([
-    {
-      id: 1,
-      prenom: 'Emma',
-      nom: 'Dubois',
-      dateNaissance: '2016-03-15',
-      parentNom: 'Marie Dubois',
-      parentTel: '06.12.34.56.78',
-      parentEmail: 'marie.dubois@email.com',
-      documents: { assurance: true, droitImage: true, cantine: false },
-      besoinsParticuliers: ['PAI alimentaire'],
-      notes: 'Allergie aux arachides. Très participative en classe.',
-      evaluations: {
-        francais: { note: 16, progression: 'positive' },
-        mathematiques: { note: 14, progression: 'stable' },
-        sciences: { note: 18, progression: 'positive' }
-      }
-    },
-    {
-      id: 2,
-      prenom: 'Lucas',
-      nom: 'Martin',
-      dateNaissance: '2016-08-22',
-      parentNom: 'Sophie Martin',
-      parentTel: '06.87.65.43.21',
-      parentEmail: 'sophie.martin@email.com',
-      documents: { assurance: true, droitImage: false, cantine: true },
-      besoinsParticuliers: ['Suivi orthophoniste'],
-      notes: 'Difficultés en lecture. Progrès remarquables depuis septembre.',
-      evaluations: {
-        francais: { note: 12, progression: 'positive' },
-        mathematiques: { note: 15, progression: 'stable' },
-        sciences: { note: 13, progression: 'positive' }
-      }
-    }
+    
   ]);
 
   const [newStudent, setNewStudent] = useState({
@@ -88,6 +56,16 @@ export default function Classe() {
       setSelectedStudent(null);
     }
   };
+
+  const updateSelectedStudent = (field, value) => {
+    setSelectedStudent(prev => ({ ...prev, [field]: value }));
+  };
+
+  const saveEditedStudent = () => {
+    setStudents(students.map(s => s.id === selectedStudent.id ? selectedStudent : s));
+    setSelectedStudent(null);
+  };
+
 
   const updateStudentEvaluation = (studentId, matiere, note, progression) => {
     setStudents(students.map(student =>
@@ -243,11 +221,17 @@ export default function Classe() {
         {activeTab === 'effectifs' && (
           <div className="tuiles-eleves">
 
-  {students.map(student => (
-    <div
-      key={student.id}
-      className="tile-seance !p-4 !text-sm !leading-snug !text-left hover:!scale-100"
-    >
+        {students.map(student => (
+          <div
+        key={student.id}
+        className="tile-seance cursor-pointer hover:shadow-md transition"
+        onClick={() => {
+  setSelectedStudent(student);
+  setEditMode(false);
+}}
+
+      >
+
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <div className="flex items-center gap-3">
@@ -265,9 +249,18 @@ export default function Classe() {
           </div>
         </div>
         <div className="flex gap-1">
-          <button onClick={() => setSelectedStudent(student)} className="tile-button">
-            <Eye size={14} />
-          </button>
+          <button
+  onClick={(e) => {
+    e.stopPropagation(); // pour éviter de déclencher le onClick sur la tuile
+    setSelectedStudent(student);
+    setEditMode(true);
+  }}
+  className="tile-button"
+>
+  <Edit2 size={14} />
+</button>
+
+
           <button onClick={() => handleDeleteStudent(student.id)} className="tile-button hover:bg-red-200">
             <Trash2 size={14} />
           </button>
@@ -406,8 +399,8 @@ export default function Classe() {
 
         {/* Formulaire d'ajout d'élève */}
         {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="form-overlay">
+            <div className="form-container">
               <h2 className="text-xl font-bold mb-4">Ajouter un nouvel élève</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -486,88 +479,127 @@ export default function Classe() {
         )}
 
         {/* Vue détaillée d'un élève */}
-        {selectedStudent && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">
-                  {selectedStudent.prenom} {selectedStudent.nom}
-                </h2>
-                <button
-                  onClick={() => setSelectedStudent(null)}
-                  className="tile-button"
-                >
-                  <XCircle size={16} />
-                </button>
+{selectedStudent && (
+  <div className="form-overlay">
+    <div className="form-container">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">
+          {selectedStudent.prenom} {selectedStudent.nom}
+        </h2>
+        <button
+          onClick={() => setSelectedStudent(null)}
+          className="tile-button"
+        >
+          <XCircle size={16} />
+        </button>
+      </div>
+
+      {editMode ? (
+        <>
+          {/* MODE ÉDITION */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {[
+              { label: 'Prénom', field: 'prenom' },
+              { label: 'Nom', field: 'nom' },
+              { label: 'Date de naissance', field: 'dateNaissance', type: 'date' },
+              { label: 'Nom du parent', field: 'parentNom' },
+              { label: 'Téléphone', field: 'parentTel', type: 'tel' },
+              { label: 'Email', field: 'parentEmail', type: 'email' }
+            ].map(({ label, field, type = 'text' }) => (
+              <div key={field}>
+                <label className="block text-sm font-semibold mb-1">{label}</label>
+                <input
+                  type={type}
+                  value={selectedStudent[field] || ''}
+                  onChange={(e) => updateSelectedStudent(field, e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Informations générales</h3>
-                  <div className="space-y-2 text-sm">
-                    <p><strong>Date de naissance :</strong> {new Date(selectedStudent.dateNaissance).toLocaleDateString('fr-FR')}</p>
-                    <p><strong>Parent :</strong> {selectedStudent.parentNom}</p>
-                    <p><strong>Téléphone :</strong> {selectedStudent.parentTel}</p>
-                    <p><strong>Email :</strong> {selectedStudent.parentEmail}</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-2">Documents</h3>
-                  <div className="space-y-2">
-                    {Object.entries(selectedStudent.documents).map(([doc, status]) => (
-                      <div key={doc} className="flex items-center gap-2">
-                        {status ? <CheckCircle className="w-4 h-4 text-green-600" /> : <XCircle className="w-4 h-4 text-red-600" />}
-                        <span className="text-sm capitalize">{doc === 'droitImage' ? 'Droit à l\'image' : doc}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-2">Évaluations</h3>
-                  <div className="space-y-2">
-                    {Object.entries(selectedStudent.evaluations).map(([matiere, data]) => (
-                      <div key={matiere} className="flex items-center justify-between p-2 border rounded">
-                        <span className="capitalize text-sm">{matiere}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">{data.note}/20</span>
-                          <div className={getProgressionColor(data.progression)}>
-                            {getProgressionIcon(data.progression)}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-2">Besoins particuliers</h3>
-                  <div className="space-y-1">
-                    {selectedStudent.besoinsParticuliers.length > 0 ? (
-                      selectedStudent.besoinsParticuliers.map((besoin, index) => (
-                        <div key={index} className="p-2 bg-orange-50 rounded text-sm">
-                          {besoin}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500">Aucun besoin particulier</p>
-                    )}
-                  </div>
-                </div>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2">
+            <button onClick={() => setEditMode(false)} className="px-4 py-2 border rounded hover:bg-gray-50">
+              Annuler
+            </button>
+            <button onClick={saveEditedStudent} className="button">
+              Enregistrer
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* MODE LECTURE SEULE */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-semibold mb-2">Informations générales</h3>
+              <div className="space-y-2 text-sm">
+                <p><strong>Date de naissance :</strong> {new Date(selectedStudent.dateNaissance).toLocaleDateString('fr-FR')}</p>
+                <p><strong>Parent :</strong> {selectedStudent.parentNom}</p>
+                <p><strong>Téléphone :</strong> {selectedStudent.parentTel}</p>
+                <p><strong>Email :</strong> {selectedStudent.parentEmail}</p>
               </div>
-              
-              {selectedStudent.notes && (
-                <div className="mt-4">
-                  <h3 className="font-semibold mb-2">Notes sur l'élève</h3>
-                  <div className="p-3 bg-gray-50 rounded text-sm">
-                    {selectedStudent.notes}
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Documents</h3>
+              <div className="space-y-2">
+                {Object.entries(selectedStudent.documents).map(([doc, status]) => (
+                  <div key={doc} className="flex items-center gap-2">
+                    {status ? <CheckCircle className="w-4 h-4 text-green-600" /> : <XCircle className="w-4 h-4 text-red-600" />}
+                    <span className="text-sm capitalize">{doc === 'droitImage' ? 'Droit à l\'image' : doc}</span>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Évaluations</h3>
+              <div className="space-y-2">
+                {Object.entries(selectedStudent.evaluations).map(([matiere, data]) => (
+                  <div key={matiere} className="flex items-center justify-between p-2 rounded">
+                    <span className="capitalize text-sm">{matiere}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{data.note}/20</span>
+                      <div className={getProgressionColor(data.progression)}>
+                        {getProgressionIcon(data.progression)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Besoins particuliers</h3>
+              <div className="space-y-1">
+                {selectedStudent.besoinsParticuliers.length > 0 ? (
+                  selectedStudent.besoinsParticuliers.map((besoin, index) => (
+                    <div key={index} className="p-2 bg-orange-50 rounded text-sm">
+                      {besoin}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">Aucun besoin particulier</p>
+                )}
+              </div>
             </div>
           </div>
-        )}
+
+          {selectedStudent.notes && (
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">Notes sur l'élève</h3>
+              <div className="p-3 bg-gray-50 rounded text-sm">
+                {selectedStudent.notes}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  </div>
+)}
+
+
       </div>
     </>
   );

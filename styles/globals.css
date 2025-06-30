@@ -289,7 +289,7 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  background-color: rgba(196, 196, 196, 0.36); /* même couleur, plus lisible */
+  background-color: rgba(219, 237, 254, 0.76); /* même couleur, plus lisible */
   padding: 0.75rem 1.25rem;
   border-radius: 0.75rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -297,10 +297,6 @@ html, body {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.onglet-classe:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
 .bouton-onglet {
   background-color: rgba(255, 255, 255, 0.85);
@@ -333,6 +329,29 @@ html, body {
   box-shadow: inset 0 -2px 0 #e0c95a;
 }
 
+/* Formulaire ajout élève */
+
+.form-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.form-container {
+  background-color: white;
+  border-radius: 0.5rem; /* équivalent à rounded-lg */
+  padding: 1.5rem; /* équivalent à p-6 */
+  width: 100%;
+  max-width: 42rem; /* équivalent à max-w-2xl */
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
 
 /* Conteneur de tuiles élèves */
 .tuiles-eleves {
@@ -362,6 +381,7 @@ html, body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Conteneur des statistiques */
 .stats-container {
   display: flex;
   justify-content: center;
@@ -372,7 +392,7 @@ html, body {
 }
 
 .tile-stat {
-  background-color: #f2ebc2;
+  background-color: #fffaf0;
   padding: 0.75rem;
   border-radius: 0.75rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -385,9 +405,6 @@ html, body {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
-
-
 
 /* ------------------------------
    Améliorations Responsive Mobile
@@ -454,4 +471,3 @@ html, body {
     font-size: 0.8rem;
   }
 }
-

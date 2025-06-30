@@ -4,14 +4,14 @@ import { useState } from "react";
 
 export default function Profile() {
   const [formData, setFormData] = useState({
-    firstName: "Étienne",
-    lastName: "Lavallard",
-    email: "etienne.lavallard@ac-aix-marseille.fr",
-    phone: "06 95 62 90 79",
-    subject: "Multidisciplinaire",
-    school: "Académie Aix-Marseille",
-    grade: "Professeur des écoles",
-    bio: "Professeur des écoles passionné et créateur de SAGE, un assistant numérique intelligent pour l'enseignement primaire.",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    school: "",
+    grade: "",
+    bio: "",
     isVisible: true,
   });
 
