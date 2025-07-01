@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 export default function Profile() {
   const [formData, setFormData] = useState({
@@ -17,25 +17,17 @@ export default function Profile() {
   });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [preview, setPreview] = useState("/Logo.png");
-  const fileInputRef = useRef(null);
-
 
   useEffect(() => {
-  // Charger le profil existant
-  fetch("/api/user/profil")
-    .then((res) => res.json())
-    .then((data) => {
-      if (data) setFormData((prev) => ({ ...prev, ...data }));
-      if (data.photoUrl && data.photoUrl !== "undefined" && data.photoUrl !== "") {
-        setPreview(data.photoUrl);
-      } else {
-        setPreview("/Logo.png");
-      }
-      setLoading(false);
-    })
-    .catch(() => setLoading(false));
-}, []);
+    // Charger le profil existant
+    fetch("/api/user/profil")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) setFormData((prev) => ({ ...prev, ...data }));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -45,37 +37,24 @@ export default function Profile() {
     });
   };
 
-  const handlePhotoClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-      setFormData({
-        ...formData, photo: file });
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     try {
       const form = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === "photo" && value instanceof File) {
+        // On ignore la clé "photo"
+        if (
+          key !== "photo" &&
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          value !== "undefined"
+        ) {
           form.append(key, value);
-        } else if (
-        value !== undefined &&
-        value !== null &&
-        value !== "" &&
-        value !== "undefined"
-      ) {
-        form.append(key, value);
-      }
-    });
-      
+        }
+      });
+
       const res = await fetch("/api/user/profil", {
         method: "POST",
         body: form,
@@ -108,34 +87,15 @@ export default function Profile() {
           <h1 className="text-3xl font-bold">Mon Profil Enseignant</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-10">
-          {/* Photo + bouton */}
+        <form onSubmit={handleSubmit}>
           <div className="flex flex-col items-center">
             <Image
-              src={preview}
+              src="/Logo.png"
               alt="Photo de profil"
               width={120}
               height={120}
               className="rounded-full border"
             />
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handlePhotoChange}
-              />
-              
-            <button
-              type="button"
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={handlePhotoClick}
-            >
-              Changer la photo
-            </button>
-            <p className="text-gray-500 text-sm mt-2">
-              
-            </p>
           </div>
 
           {/* Infos personnelles */}
@@ -233,10 +193,9 @@ export default function Profile() {
                 rows="4"
                 className="w-full border rounded px-4 py-2"
               ></textarea>
-              
             </div>
           </section>
-        
+
           <button
             type="submit"
             className="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700"

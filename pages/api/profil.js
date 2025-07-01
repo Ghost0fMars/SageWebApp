@@ -20,20 +20,14 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     const form = new formidable.IncomingForm();
-    form.uploadDir = "./public/uploads";
-    form.keepExtensions = true;
-
-    if (!fs.existsSync(form.uploadDir)) {
-      fs.mkdirSync(form.uploadDir, { recursive: true });
-    }
-
+   
     form.parse(req, async (err, fields, files) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ error: "Erreur lors de l'upload" });
       }
 
-      const photoUrl = files.photo ? `/uploads/${files.photo.newFilename}` : fields.photoUrl || null;
+      const photoUrl = fields.photoUrl || null;
 
       const existingProfil = await prisma.profil.findUnique({ where: { userId: user.id } });
 
