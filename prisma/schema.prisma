@@ -7,13 +7,29 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Profil {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  messagerie String?
+  phone     String?
+  subject   String?
+  school    String?
+  grade     String?
+  bio       String?
+  photoUrl  String?
+  isVisible Boolean  @default(true)
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+}
+
 model User {
   id             String     @id @default(cuid())
   email          String     @unique
   name           String?
   hashedPassword String?
   createdAt      DateTime   @default(now())
-
+  profil         Profil?
   sequences      Sequence[]
 }
 

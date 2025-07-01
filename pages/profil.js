@@ -1,19 +1,41 @@
 import Header from "@/components/Header";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Profile() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
+    messagerie: "",
     phone: "",
     subject: "",
     school: "",
     grade: "",
     bio: "",
     isVisible: true,
+    photoUrl: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState("/Logo.png");
+  const fileInputRef = useRef(null);
+
+
+  useEffect(() => {
+  // Charger le profil existant
+  fetch("/api/user/profil")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data) setFormData((prev) => ({ ...prev, ...data }));
+      if (data.photoUrl && data.photoUrl !== "undefined" && data.photoUrl !== "") {
+        setPreview(data.photoUrl);
+      } else {
+        setPreview("/Logo.png");
+      }
+      setLoading(false);
+    })
+    .catch(() => setLoading(false));
+}, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -23,11 +45,58 @@ export default function Profile() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Profil sauvegardé :", formData);
-    // TODO : envoyer les données au backend
+  const handlePhotoClick = () => {
+    fileInputRef.current.click();
   };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+      setFormData({
+        ...formData, photo: file });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    try {
+      const form = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "photo" && value instanceof File) {
+          form.append(key, value);
+        } else if (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        value !== "undefined"
+      ) {
+        form.append(key, value);
+      }
+    });
+      
+      const res = await fetch("/api/user/profil", {
+        method: "POST",
+        body: form,
+      });
+      if (res.ok) {
+        setMessage("Profil sauvegardé !");
+      } else {
+        setMessage("Erreur lors de la sauvegarde.");
+      }
+    } catch (err) {
+      setMessage("Erreur réseau.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <span>Chargement...</span>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -43,15 +112,24 @@ export default function Profile() {
           {/* Photo + bouton */}
           <div className="flex flex-col items-center">
             <Image
-              src="/Logo.png"
+              src={preview}
               alt="Photo de profil"
               width={120}
               height={120}
               className="rounded-full border"
             />
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handlePhotoChange}
+              />
+              
             <button
               type="button"
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={handlePhotoClick}
             >
               Changer la photo
             </button>
@@ -90,8 +168,8 @@ export default function Profile() {
                 <label className="block mb-1 font-medium">Email professionnel</label>
                 <input
                   type="email"
-                  name="email"
-                  value={formData.email}
+                  name="messagerie"
+                  value={formData.messagerie}
                   onChange={handleChange}
                   className="w-full border rounded px-4 py-2"
                 />
@@ -158,15 +236,14 @@ export default function Profile() {
               
             </div>
           </section>
-
-          
-
+        
           <button
             type="submit"
             className="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700"
           >
             Sauvegarder le profil
           </button>
+          {message && <p className="mt-4">{message}</p>}
         </form>
       </div>
     </>
