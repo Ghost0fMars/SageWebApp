@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import prisma from '@/lib/prisma'; // ✅ import par défaut
 import formidable from "formidable";
 import fs from "fs";
 import { getServerSession } from "next-auth"; // selon ta config
