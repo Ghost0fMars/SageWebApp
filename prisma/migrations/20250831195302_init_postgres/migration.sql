@@ -1,4 +1,22 @@
 -- CreateTable
+CREATE TABLE "Profil" (
+    "id" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "messagerie" TEXT,
+    "phone" TEXT,
+    "subject" TEXT,
+    "school" TEXT,
+    "grade" TEXT,
+    "bio" TEXT,
+    "photoUrl" TEXT,
+    "isVisible" BOOLEAN NOT NULL DEFAULT true,
+    "userId" TEXT NOT NULL,
+
+    CONSTRAINT "Profil_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -29,17 +47,41 @@ CREATE TABLE "Seance" (
     "consigne" TEXT,
     "detailed" TEXT,
     "position" TEXT,
-    "date" TIMESTAMP(3),
+    "semaine" TIMESTAMP(3),
     "sequenceId" TEXT NOT NULL,
 
     CONSTRAINT "Seance_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateTable
+CREATE TABLE "Eleve" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "prenom" TEXT NOT NULL,
+    "nom" TEXT NOT NULL,
+    "dateNaissance" TEXT,
+    "parentNom" TEXT,
+    "parentTel" TEXT,
+    "parentEmail" TEXT,
+    "documents" JSONB NOT NULL,
+    "besoinsParticuliers" JSONB NOT NULL,
+    "notes" TEXT,
+    "evaluations" JSONB NOT NULL,
+
+    CONSTRAINT "Eleve_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Profil_userId_key" ON "Profil"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Sequence_title_key" ON "Sequence"("title");
+
+-- AddForeignKey
+ALTER TABLE "Profil" ADD CONSTRAINT "Profil_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Sequence" ADD CONSTRAINT "Sequence_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

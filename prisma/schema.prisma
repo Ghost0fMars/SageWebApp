@@ -1,26 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model Profil {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
+  id         String  @id @default(cuid())
+  firstName  String
+  lastName   String
   messagerie String?
-  phone     String?
-  subject   String?
-  school    String?
-  grade     String?
-  bio       String?
-  photoUrl  String?
-  isVisible Boolean  @default(true)
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @unique
+  phone      String?
+  subject    String?
+  school     String?
+  grade      String?
+  bio        String?
+  photoUrl   String?
+  isVisible  Boolean @default(true)
+  userId     String  @unique
+  user       User    @relation(fields: [userId], references: [id])
 }
 
 model User {
@@ -38,13 +38,13 @@ model Sequence {
   title     String   @unique
   content   Json
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  seances   Seance[]
   createdAt DateTime @default(now())
+  seances   Seance[]
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Seance {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   title      String
   subtitle   String?
   objectif   String
@@ -53,20 +53,20 @@ model Seance {
   position   String?
   semaine    DateTime?
   sequenceId String
-  sequence   Sequence @relation(fields: [sequenceId], references: [id])
+  sequence   Sequence  @relation(fields: [sequenceId], references: [id])
 }
 
 model Eleve {
-  id        String   @id @default(uuid())
-  userId    String
-  prenom    String
-  nom       String
-  dateNaissance String?
-  parentNom String?
-  parentTel String?
-  parentEmail String?
-  documents Json
+  id                  String  @id @default(uuid())
+  userId              String
+  prenom              String
+  nom                 String
+  dateNaissance       String?
+  parentNom           String?
+  parentTel           String?
+  parentEmail         String?
+  documents           Json
   besoinsParticuliers Json
-  notes     String?
-  evaluations Json
+  notes               String?
+  evaluations         Json
 }

@@ -7,8 +7,11 @@ const prisma = new PrismaClient();
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) return res.status(401).json({ message: "Non autorisé" });
+  console.log("Session:", session); // Ajoutez ici
 
   if (req.method === "POST") {
+    console.log("Données reçues:", req.body); // Ajoutez ici
+
     const {
       firstName,
       lastName,
@@ -28,6 +31,8 @@ export default async function handler(req, res) {
       const user = await prisma.user.findUnique({
         where: { email: session.user.email },
       });
+      console.log("Utilisateur trouvé:", user); // Ajoutez ici
+
 
       if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
 
